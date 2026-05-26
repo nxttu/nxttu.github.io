@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>nxttu. — portfolio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Unbounded:wght@200;400;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --bg2: #111;
+    --bg3: #1a1a1a;
+    --accent: #e8e8e8;
+    --muted: #555;
+    --dim: #333;
+    --white: #f5f5f5;
+    --invert-bg: #000000;
+    --neon-glow: rgba(245, 245, 245, 0.85);
+    --glass-glow: rgba(245, 245, 245, 0.06);
+    --neon-blur: rgba(245, 245, 245, 0.2);
+  }
+
+  /* Світла тема (Світло-сірий мінімалізм зі збереженням скла) */
+  body.light-theme {
+    --bg: #f0f0f0;
+    --bg2: #e4e4e4;
+    --bg3: #dadada;
+    --accent: #1a1a1a;
+    --muted: #777;
+    --dim: #ccc;
+    --white: #0a0a0a;
+    --invert-bg: #f5f5f5;
+    --neon-glow: rgba(10, 10, 10, 0.85);
+    --glass-glow: rgba(0, 0, 0, 0.04);
+    --neon-blur: rgba(10, 10, 10, 0.15);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--accent);
+    font-family: 'Space Mono', monospace;
+    overflow-x: hidden;
+    cursor: crosshair;
+    transition: background 0.3s ease, color 0.3s ease;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+    opacity: 0.03;
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  nav a, .logo, .meme-target, .theme-toggle {
+    transition: background-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
+  }
+
+  nav a, .theme-toggle {
+    font-size: 0.7rem;
+    color: var(--muted);
+    text-decoration: none;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 0.3rem 0.6rem;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  nav a:hover, .theme-toggle:hover {
+    background-color: var(--white);
+    color: var(--invert-bg) !important;
+    box-shadow: 0 0 12px var(--neon-glow);
+  }
+
+  header {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 1.2rem 2.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--dim);
+    background: rgba(10,10,10,0.92);
+    backdrop-filter: blur(10px);
+    transition: background 0.3s, border-color 0.3s;
+  }
+  body.light-theme header {
+    background: rgba(240,240,240,0.92);
+  }
+
+  /* Селектор мови */
+  .lang-select {
+    background: transparent;
+    border: 1px solid var(--dim);
+    color: var(--accent);
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    padding: 0.2rem 0.4rem;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    outline: none;
+    transition: border-color 0.3s;
+  }
+  .lang-select:hover {
+    border-color: var(--white);
+  }
+  .lang-select option {
+    background: var(--bg2);
+    color: var(--accent);
+  }
+
+  .logo {
+    font-family: 'Unbounded', sans-serif;
+    font-weight: 900;
+    font-size: 1.1rem;
+    letter-spacing: -0.05em;
+    color: var(--white);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.3rem 0.6rem;
+  }
+  .logo:hover {
+    background-color: var(--white);
+    color: var(--invert-bg) !important;
+    box-shadow: 0 0 12px var(--neon-glow);
+  }
+  .logo:hover .verified-badge {
+    fill: var(--invert-bg);
+  }
+
+  .verified-badge {
+    width: 14px;
+    height: 14px;
+    fill: #1890ff;
+    display: inline-block;
+    transition: fill 0.25s ease;
+  }
+
+  .header-right { display: flex; align-items: center; gap: 1.5rem; }
+  nav { display: flex; gap: 1rem; align-items: center; }
+
+  .header-socials { display: flex; gap: 0.5rem; align-items: center; border-left: 1px solid var(--dim); padding-left: 1.5rem; }
+  .header-socials a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.2rem;
+    height: 2.2rem;
+    color: var(--muted);
+    text-decoration: none;
+    border-radius: 2px;
+    transition: background-color 0.25s, color 0.25s, box-shadow 0.25s;
+  }
+  .header-socials a:hover {
+    background-color: var(--white);
+    color: var(--invert-bg) !important;
+    box-shadow: 0 0 12px var(--neon-glow);
+  }
+  .header-socials svg { width: 16px; height: 16px; fill: currentColor; }
+  
+  /* Текстовий SoundCloud */
+  .header-socials a.sc-text-link {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    width: auto;
+    padding: 0.3rem 0.6rem;
+    height: auto;
+    display: inline-flex;
+  }
+
+  .header-socials a.social-hot { color: var(--accent); position: relative; }
+  .header-socials a.social-hot::after {
+    content: '';
+    position: absolute;
+    bottom: 2px; left: 50%; transform: translateX(-50%);
+    width: 4px; height: 4px; border-radius: 50%;
+    background: var(--white);
+    transition: background 0.25s;
+  }
+  body.light-theme .header-socials a.social-hot::after { background: var(--accent); }
+  .header-socials a.social-hot:hover::after {
+    background: var(--invert-bg);
+  }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 8rem 2.5rem 4rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-bg-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: 'Unbounded', sans-serif;
+    font-weight: 900;
+    font-size: clamp(8rem, 22vw, 22rem);
+    color: var(--bg2);
+    white-space: nowrap;
+    pointer-events: none;
+    user-select: none;
+    letter-spacing: -0.05em;
+    line-height: 1;
+    transition: color 0.3s;
+  }
+
+  .hero-tag { font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); margin-bottom: 1.5rem; }
+  .hero-name {
+    font-family: 'Unbounded', sans-serif;
+    font-weight: 900;
+    font-size: clamp(3.5rem, 10vw, 9rem);
+    line-height: 0.9;
+    letter-spacing: -0.04em;
+    color: var(--white);
+    margin-bottom: 2rem;
+    transition: color 0.3s;
+  }
+  .hero-name span { color: var(--muted); }
+
+  .hero-desc {
+    max-width: 500px;
+    font-size: 0.8rem;
+    line-height: 1.9;
+    color: var(--muted);
+    border-left: 2px solid var(--dim);
+    padding-left: 1.5rem;
+    margin-bottom: 3rem;
+    transition: border-color 0.3s;
+  }
+
+  .hero-stats { display: flex; gap: 3rem; }
+  .stat { display: flex; flex-direction: column; gap: 0.3rem; }
+  .stat-num { font-family: 'Unbounded', sans-serif; font-weight: 700; font-size: 1.8rem; color: var(--white); letter-spacing: -0.03em; transition: color 0.3s; }
+  .stat-label { font-size: 0.6rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); }
+
+  .scroll-hint {
+    position: absolute;
+    bottom: 2rem;
+    right: 2.5rem;
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    writing-mode: vertical-rl;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+  }
+  .scroll-hint::before { content: ''; display: block; width: 1px; height: 3rem; background: var(--dim); }
+
+  section { padding: 6rem 2.5rem; border-top: 1px solid var(--dim); scroll-margin-top: 80px; transition: border-color 0.3s; }
+  .section-label {
+    font-size: 0.6rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 3rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  .section-label::before { content: ''; display: block; width: 2rem; height: 1px; background: var(--muted); }
+
+  /* ABOUT */
+  .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: start; }
+  .about-title {
+    font-family: 'Unbounded', sans-serif;
+    font-weight: 700;
+    font-size: clamp(2rem, 5vw, 4rem);
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    color: var(--white);
+    margin-bottom: 2rem;
+    transition: color 0.3s;
+  }
+  .about-body { font-size: 0.8rem; line-height: 2; color: var(--muted); }
+  .about-body p + p { margin-top: 1.2rem; }
+  .about-body em { color: var(--accent); font-style: normal; }
+
+  .timeline { display: flex; flex-direction: column; }
+  .tl-item {
+    display: grid;
+    grid-template-columns: 5rem 1fr;
+    gap: 1.5rem;
+    padding: 1.5rem 0;
+    border-bottom: 1px solid var(--dim);
+    align-items: start;
+    transition: border-color 0.3s;
+  }
+  .tl-year { font-family: 'Unbounded', sans-serif; font-weight: 200; font-size: 0.75rem; color: var(--muted); padding-top: 0.15rem; }
+  .tl-content h4 { font-size: 0.8rem; font-weight: 700; color: var(--white); margin-bottom: 0.3rem; transition: color 0.3s; }
+  .tl-content p { font-size: 0.72rem; color: var(--muted); line-height: 1.7; }
+
+  /* DISCOGRAPHY */
+  .albums-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 0;
+    border-top: 1px solid var(--dim);
+    border-left: 1px solid var(--dim);
+    transition: border-color 0.3s;
+  }
+
+  .album-card { 
+    background: var(--bg); 
+    padding: 2rem; 
+    transition: background-color 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease; 
+    display: block; 
+    color: inherit;
+    border-right: 1px solid var(--dim);
+    border-bottom: 1px solid var(--dim);
+    text-decoration: none;
+    position: relative;
+    z-index: 1;
+  }
+  .album-card:hover { 
+    background-color: var(--glass-glow);
+    backdrop-filter: blur(4px);
+    border-color: rgba(245, 245, 245, 0.25);
+    box-shadow: inset 0 0 15px rgba(245, 245, 245, 0.05), 0 0 25px var(--neon-blur);
+    z-index: 2;
+  }
+  body.light-theme .album-card:hover {
+    border-color: rgba(10, 10, 10, 0.15);
+  }
+
+  .album-dot { width: 0.6rem; height: 0.6rem; border-radius: 50%; background: var(--dim); margin-bottom: 1.5rem; transition: background-color 0.3s, border-color 0.3s; }
+  .album-card:hover .album-dot { background: var(--white); }
+  .album-card.black .album-dot { background: #1a1a1a; border: 1px solid #555; }
+  .album-card.white .album-dot { background: var(--white); }
+  .album-card.era3 .album-dot { background: transparent; border: 1px dashed #555; transition: border-color 0.3s; }
+  .album-card.era3:hover .album-dot { border-color: var(--white); }
+
+  .album-era { font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.5rem; transition: color 0.3s; }
+  .album-title { font-family: 'Unbounded', sans-serif; font-weight: 700; font-size: 1.1rem; color: var(--white); margin-bottom: 1rem; letter-spacing: -0.02em; transition: color 0.3s; }
+  .album-desc { font-size: 0.72rem; line-height: 1.8; color: var(--muted); margin-bottom: 1.5rem; transition: color 0.3s; }
+
+  .album-card:hover .album-era,
+  .album-card:hover .album-desc {
+    color: var(--accent);
+  }
+
+  .album-tracks { list-style: none; }
+  .album-tracks li {
+    font-size: 0.68rem;
+    color: var(--muted);
+    padding: 0.35rem 0;
+    border-bottom: 1px solid var(--bg3);
+    display: flex;
+    justify-content: space-between;
+    transition: color 0.3s, border-color 0.3s;
+  }
+  .album-tracks li:last-child { border: none; }
+  .album-card:hover .album-tracks li { color: var(--accent); border-bottom-color: var(--dim); }
+
+  .album-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-decoration: none;
+    margin-top: 1.5rem;
+    transition: color 0.3s;
+  }
+  .album-link::after { content: '→'; }
+  .album-link:hover, .album-card:hover .album-link { color: var(--white); }
+
+  .tbc-btn {
+    display: inline-block;
+    font-family: 'Space Mono', monospace;
+    background: transparent;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border: 1px dashed var(--dim);
+    padding: 0.4rem 0.8rem;
+    margin-top: 1rem;
+    cursor: pointer;
+    transition: color 0.3s, border-color 0.3s, background-color 0.25s, box-shadow 0.25s;
+  }
+  .album-card:hover .tbc-btn {
+    color: var(--muted);
+    border-color: var(--dim);
+  }
+  .tbc-btn:hover {
+    background-color: var(--white) !important;
+    color: var(--invert-bg) !important;
+    border-color: var(--white) !important;
+    box-shadow: 0 0 15px var(--neon-glow) !important;
+  }
+
+  /* МОДАЛЬНЕ ВІКНО */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(5, 5, 5, 0.88);
+    backdrop-filter: blur(8px);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+  .modal-overlay.active { opacity: 1; pointer-events: auto; }
+  
+  .modal-content {
+    background: var(--bg2);
+    border: 1px solid var(--dim);
+    padding: 3rem;
+    max-width: 480px;
+    width: 90%;
+    text-align: center;
+    transform: translateY(20px);
+    transition: transform 0.3s ease, background 0.3s, border-color 0.3s;
+  }
+  .modal-overlay.active .modal-content { transform: translateY(0); }
+  
+  .modal-text {
+    font-size: 0.85rem;
+    line-height: 1.8;
+    color: var(--white);
+    margin-bottom: 2.5rem;
+    letter-spacing: 0.02em;
+    transition: color 0.3s;
+  }
+  
+  .modal-links { display: flex; justify-content: center; gap: 1rem; margin-bottom: 2rem; }
+  .modal-links a {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--white);
+    text-decoration: none;
+    border: 1px solid var(--dim);
+    padding: 0.6rem 1.2rem;
+    transition: background-color 0.25s, color 0.25s, box-shadow 0.25s;
+  }
+  .modal-links a:hover {
+    background-color: var(--white);
+    color: var(--invert-bg) !important;
+    box-shadow: 0 0 12px var(--neon-glow);
+  }
+  
+  .modal-close {
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    color: var(--muted);
+    cursor: pointer;
+    letter-spacing: 0.15em;
+    text-decoration: underline;
+    transition: color 0.2s;
+  }
+  .modal-close:hover { color: var(--white); }
+
+  /* STATS */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 1px;
+    background: var(--dim);
+    border: 1px solid var(--dim);
+    margin-top: 3rem;
+    transition: background 0.3s, border-color 0.3s;
+  }
+  .stat-box { background: var(--bg); padding: 2rem 1.5rem; transition: background 0.3s; }
+  .stat-box-year { font-size: 0.6rem; letter-spacing: 0.15em; color: var(--muted); margin-bottom: 1rem; text-transform: uppercase; }
+  .stat-box-num { font-family: 'Unbounded', sans-serif; font-weight: 900; font-size: 1.6rem; color: var(--white); letter-spacing: -0.04em; margin-bottom: 0.3rem; transition: color 0.3s; }
+  .stat-box-sub { font-size: 0.62rem; color: var(--muted); }
+
+  /* LINKS */
+  .links-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 0;
+    border-top: 1px solid var(--dim);
+    border-left: 1px solid var(--dim);
+    transition: border-color 0.3s;
+  }
+
+  .link-item {
+    background: var(--bg);
+    padding: 1.8rem 1.5rem;
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    cursor: pointer;
+    border-right: 1px solid var(--dim);
+    border-bottom: 1px solid var(--dim);
+    position: relative;
+    z-index: 1;
+  }
+  .link-item:hover { 
+    background-color: var(--glass-glow);
+    backdrop-filter: blur(4px);
+    border-color: rgba(245, 245, 245, 0.25);
+    box-shadow: inset 0 0 15px rgba(245, 245, 245, 0.05), 0 0 25px var(--neon-blur);
+    z-index: 2;
+  }
+  body.light-theme .link-item:hover { border-color: rgba(10, 10, 10, 0.15); }
+  
+  .link-platform { font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); transition: color 0.3s; }
+  .link-name { font-family: 'Unbounded', sans-serif; font-weight: 700; font-size: 0.9rem; color: var(--white); letter-spacing: -0.02em; transition: color 0.3s; }
+  .link-arrow { font-size: 1rem; color: var(--muted); margin-top: auto; padding-top: 1rem; transition: transform 0.2s, color 0.3s; }
+
+  .link-item:hover .link-platform,
+  .link-item:hover .link-arrow {
+    color: var(--white);
+  }
+  .link-item:hover .link-arrow { transform: translate(3px, -3px); }
+
+  footer {
+    padding: 2rem 2.5rem;
+    border-top: 1px solid var(--dim);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: border-color 0.3s;
+  }
+  footer p { font-size: 0.65rem; color: var(--muted); letter-spacing: 0.05em; }
+  
+  .meme-target { 
+    cursor: pointer; 
+    color: var(--accent);
+    padding: 0.2rem 0.4rem;
+  }
+  .meme-target:hover {
+    background-color: var(--white);
+    color: var(--invert-bg) !important;
+    box-shadow: 0 0 12px var(--neon-glow);
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .hero-tag, .hero-name, .hero-desc, .hero-stats { animation: fadeUp 0.8s ease forwards; opacity: 0; }
+  .hero-tag { animation-delay: 0.1s; }
+  .hero-name { animation-delay: 0.2s; }
+  .hero-desc { animation-delay: 0.3s; }
+  .hero-stats { animation-delay: 0.4s; }
+
+  @media (max-width: 900px) {
+    .header-socials { display: none; }
+    header { padding: 1rem 1.5rem; }
+    .hero { padding: 7rem 1.5rem 3rem; }
+    section { padding: 4rem 1.5rem; }
+    .about-grid { grid-template-columns: 1fr; gap: 2.5rem; }
+    .stats-row { grid-template-columns: repeat(2, 1fr); }
+    footer { flex-direction: column; gap: 1rem; text-align: center; }
+    nav { gap: 0.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <a class="logo" id="logo-target" href="#">nxttu.<svg class="verified-badge" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" title="Verified"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg></a>
+  <div class="header-right">
+    <nav>
+      <select class="lang-select" id="lang-selector">
+        <option value="en" selected>EN</option>
+        <option value="ua">UA</option>
+        <option value="ru">RU</option>
+        <option value="pl">PL</option>
+        <option value="it">IT</option>
+        <option value="es">ES</option>
+      </select>
+      <a href="#about" data-i18n="nav-about">about</a>
+      <a href="#music" data-i18n="nav-music">music</a>
+      <a href="#stats" data-i18n="nav-stats">stats</a>
+      <a href="#links" data-i18n="nav-links">links</a>
+      <button class="theme-toggle" id="theme-btn" data-i18n="nav-theme">theme</button>
+    </nav>
+    <div class="header-socials">
+      <a href="https://www.soundcloud.com/nxttoyo" target="_blank" title="SoundCloud" class="sc-text-link">SoundCloud</a>
+      <a href="https://nxttu.bandcamp.com" target="_blank" title="Bandcamp"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M0 18.75l7.437-13.5H24l-7.438 13.5z"/></svg></a>
+      <a href="https://www.youtube.com/@nxttoyo" target="_blank" title="YouTube"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M23.495 6.205a3.007 3.007 0 0 0-2.088-2.088c-1.87-.501-9.396-.501-9.396-.501s-7.507-.01-9.396.501A3.007 3.007 0 0 0 .527 6.205a31.247 31.247 0 0 0-.522 5.805 31.247 31.247 0 0 0 .522 5.783 3.007 3.007 0 0 0 2.088 2.088c1.868.502 9.396.502 9.396.502s7.506 0 9.396-.502a3.007 3.007 0 0 0 2.088-2.088 31.247 31.247 0 0 0 .5-5.783 31.247 31.247 0 0 0-.5-5.805zM9.609 15.601V8.408l6.264 3.602z"/></svg></a>
+      <a href="https://www.tiktok.com/@nxttoyo" target="_blank" title="TikTok" class="social-hot"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.32 6.32 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V9.05a8.16 8.16 0 004.77 1.52V7.12a4.85 4.85 0 01-1-.43z"/></svg></a>
+      <a href="https://www.instagram.com/nxttoyo" target="_blank" title="Instagram" class="social-hot"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></a>
+      <a href="https://discord.gg/KMVt2C9zRx" target="_blank" title="Discord"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20.317 4.37a19.791 19.791 0 00-4.885-1.515.074.074 0 00-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 00-5.487 0 12.64 12.64 0 00-.617-1.25.077.077 0 00-.079-.037A19.736 19.736 0 003.677 4.37a.07.07 0 00-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 00.031.057 19.9 19.9 0 005.993 3.03.078.078 0 00.084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 00-.041-.106 13.107 13.107 0 01-1.872-.892.077.077 0 01-.008-.128 10.2 10.2 0 00.372-.292.074.074 0 01.077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 01.078.01c.12.098.246.198.373.292a.077.077 0 01-.006.127 12.299 12.299 0 01-1.873.892.077.077 0 00-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 00.084.028 19.839 19.839 0 006.002-3.03.078.078 0 00.032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 00-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg></a>
+      <a href="https://steamcommunity.com/id/nxttu" target="_blank" title="Steam"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M11.979 0C5.678 0 .511 4.86.022 11.037l6.432 2.658c.545-.371 1.203-.59 1.912-.59.063 0 .125.004.188.006l2.861-4.142V8.91c0-2.495 2.028-4.524 4.524-4.524 2.494 0 4.524 2.031 4.524 4.527s-2.03 4.525-4.524 4.525h-.105l-4.076 2.911c0 .052.004.105.004.159 0 1.875-1.515 3.396-3.39 3.396-1.635 0-3.016-1.173-3.331-2.727L.436 15.27C1.862 20.307 6.486 24 11.979 24c6.627 0 11.999-5.373 11.999-12S18.605 0 11.979 0zM7.54 18.21l-1.473-.61c.262.543.714.999 1.314 1.25 1.297.539 2.793-.076 3.332-1.375.263-.63.264-1.319.005-1.949s-.75-1.121-1.377-1.383c-.624-.26-1.298-.249-1.878-.03l1.523.63c.956.4 1.409 1.5 1.009 2.455-.397.957-1.497 1.41-2.455 1.012H7.54zm11.415-9.303c0-1.662-1.353-3.015-3.015-3.015-1.665 0-3.015 1.353-3.015 3.015 0 1.665 1.35 3.015 3.015 3.015 1.663 0 3.015-1.35 3.015-3.015zm-5.273-.005c0-1.252 1.013-2.266 2.265-2.266 1.249 0 2.266 1.014 2.266 2.266 0 1.251-1.017 2.265-2.266 2.265-1.252 0-2.265-1.014-2.265-2.265z"/></svg></a>
+    </div>
+  </div>
+</header>
+
+<section class="hero" id="hero">
+  <div class="hero-bg-text">NTY.</div>
+  <p class="hero-tag" data-i18n="hero-tag">// experimental electronic artist · est. 2021 · ukraine</p>
+  <h1 class="hero-name">nxttu.<span><br data-i18n="hero-sub">next to you.</span></h1>
+  <p class="hero-desc" data-i18n="hero-desc">
+    Combining ambient textures, breakbeat rhythms and digital noise into emotional soundscapes — focused on atmosphere and raw feeling, not traditional fucked up structure.
+  </p>
+  <div class="hero-stats">
+    <div class="stat"><span class="stat-num">3,470+</span><span class="stat-label" data-i18n="stat-plays">plays</span></div>
+    <div class="stat"><span class="stat-num">294</span><span class="stat-label" data-i18n="stat-likes">likes</span></div>
+    <div class="stat"><span class="stat-num">23</span><span class="stat-label" data-i18n="stat-tracks">tracks</span></div>
+    <div class="stat"><span class="stat-num">5+</span><span class="stat-label" data-i18n="stat-years">years</span></div>
+  </div>
+  <div class="scroll-hint" data-i18n="scroll">scroll</div>
+</section>
+
+<section id="about">
+  <p class="section-label" data-i18n="label-about">01 — about</p>
+  <div class="about-grid">
+    <div>
+      <h2 class="about-title" data-i18n="about-title">Started at 4<br>on my brother's<br>computer.</h2>
+      <div class="about-body" id="about-text">
+        <p>It started at <em>age 4</em> — sitting on my brother's lap working on his computer, messing with melodies. At 6 I wrote my first "track": just a collection of cool sounds, but my brother saw something interesting in it.</p>
+        <p>Then came my own computer, hours of dragging notes around in an editor. The old PC broke. I left music behind — until I downloaded <em>FL Studio</em> again and started messing around.</p>
+        <p>First nickname: <em>Jonathan Fortile</em>. Then Bearonic, BEARN... until I landed on <em>nxttu.</em> (next to you / nty). Came up with it in class thinking about a friend sitting next to me.</p>
+        <p>Now — <em>experimental electronic</em> producer from Ukraine. Open for collabs & deals.</p>
+      </div>
+    </div>
+    <div class="timeline" id="timeline-box">
+      </div>
+  </div>
+</section>
+
+<section id="music">
+  <p class="section-label" data-i18n="label-music">02 — discography</p>
+  <div class="albums-grid">
+
+    <div class="album-card black">
+      <div class="album-dot"></div>
+      <p class="album-era" data-i18n="era-1">era I · 2021</p>
+      <h3 class="album-title" data-i18n="album-1-title">Black Tracks</h3>
+      <p class="album-desc" data-i18n="album-1-desc">The era where everything started. Was supposed to be 40 tracks — most were lost or deleted. First trials, errors, drafts. Nothing hidden.</p>
+      <ul class="album-tracks">
+		<li><span>01 — What? (preview)</span></li>
+		<li><span>02 — What?</span></li>
+        <li><span>03 — Take me with you</span></li>
+        <li><span>04 — mama</span></li>
+        <li><span>05 — Aurelia (nxttu. remix)</span></li>
+        <li><span>06 — nxttu - life hits diff.</span></li>
+        <li><span>07 — nxttu - Sunset</span></li>
+        <li><span>08 — nxttu - 夜空の下の茶色の目</span></li>
+      </ul>
+      <a class="album-link" href="https://soundcloud.com/nxttoyo/sets/nxttu-black-tracks/s-PBOV851tQzU" target="_blank" data-i18n="sc-listen">Listen on SoundCloud</a>
+    </div>
+
+    <div class="album-card white">
+      <div class="album-dot"></div>
+      <p class="album-era" data-i18n="era-2">era II · 2025–2026</p>
+      <h3 class="album-title" data-i18n="album-2-title">White Tracks</h3>
+      <p class="album-desc" data-i18n="album-2-desc">The most emotional period. Tracks made to get things out of my system — chaos and good moments. Each made in 1–2 hours. Raw and honest.</p>
+      <ul class="album-tracks">
+        <li><span>01 — Alternative Nana</span></li>
+        <li><span>02 — PAINOFF</span></li>
+        <li><span>03 — you are pretty...</span></li>
+        <li><span>04 — Jana</span></li>
+        <li><span>05 — polarity</span></li>
+        <li><span>06 — revercity</span></li>
+        <li><span>07 — slowless</span></li>
+        <li><span>08 — extra</span></li>
+      </ul>
+      <a class="album-link" href="https://soundcloud.com/nxttoyo/sets/nxttu-white-tracks/s-7TbXCDCQMQa" target="_blank" data-i18n="sc-listen">Listen on SoundCloud</a>
+    </div>
+
+    <div class="album-card era3">
+      <div class="album-dot"></div>
+      <p class="album-era" data-i18n="era-3">era III · 2026 — ???</p>
+      <h3 class="album-title">??? Tracks</h3>
+      <p class="album-desc" data-i18n="album-3-desc">Something is being built. This era is still in progress — not sure where it's going yet, but it's coming.</p>
+      <button class="tbc-btn" id="tbc-trigger">to be continued...</button>
+    </div>
+
+  </div>
+</section>
+
+<div class="modal-overlay" id="modal-container">
+  <div class="modal-content">
+    <div class="modal-text" data-i18n="modal-text">To stay updated and follow my upcoming releases, please subscribe to my SoundCloud or TikTok.</div>
+    <div class="modal-links">
+      <a href="https://www.soundcloud.com/nxttoyo" target="_blank">SoundCloud</a>
+      <a href="https://www.tiktok.com/@nxttoyo" target="_blank">TikTok</a>
+    </div>
+    <div class="modal-close" id="modal-close-btn" data-i18n="modal-close">close</div>
+  </div>
+</div>
+
+<section id="stats">
+  <p class="section-label" data-i18n="label-stats">03 — stats by year</p>
+  <div class="stats-row">
+    <div class="stat-box">
+      <p class="stat-box-year">2021</p>
+      <p class="stat-box-num">191</p>
+      <p class="stat-box-sub" data-i18n="stat-2021">plays · 24 likes</p>
+    </div>
+    <div class="stat-box">
+      <p class="stat-box-year">2022</p>
+      <p class="stat-box-num">204</p>
+      <p class="stat-box-sub" data-i18n="stat-2022">plays · 24 likes</p>
+    </div>
+    <div class="stat-box">
+      <p class="stat-box-year">2023</p>
+      <p class="stat-box-num">924</p>
+      <p class="stat-box-sub" data-i18n="stat-2023">plays · 68 likes · 13 com.</p>
+    </div>
+    <div class="stat-box">
+      <p class="stat-box-year">2024</p>
+      <p class="stat-box-num">457</p>
+      <p class="stat-box-sub" data-i18n="stat-2024">plays · 15 likes</p>
+    </div>
+    <div class="stat-box">
+      <p class="stat-box-year">2025</p>
+      <p class="stat-box-num">1,328</p>
+      <p class="stat-box-sub" data-i18n="stat-2025">plays · 92 likes · 15 rep.</p>
+    </div>
+  </div>
+</section>
+
+<section id="links">
+  <p class="section-label" data-i18n="label-links">04 — find me</p>
+  <div class="links-grid">
+    <a class="link-item" href="https://www.soundcloud.com/nxttoyo" target="_blank">
+      <span class="link-platform" data-i18n="link-m">Music</span>
+      <span class="link-name">SoundCloud</span>
+      <span class="link-arrow">↗</span>
+    </a>
+    <a class="link-item" href="https://nxttu.bandcamp.com" target="_blank">
+      <span class="link-platform" data-i18n="link-ms">Music / Store</span>
+      <span class="link-name">Bandcamp</span>
+      <span class="link-arrow">↗</span>
+    </a>
+    <a class="link-item" href="https://www.youtube.com/@nxttoyo" target="_blank">
+      <span class="link-platform" data-i18n="link-v">Video</span>
+      <span class="link-name">YouTube</span>
+      <span class="link-arrow">↗</span>
+    </a>
+    <a class="link-item" href="https://www.tiktok.com/@nxttoyo" target="_blank">
+      <span class="link-platform" data-i18n="link-sv">Short Video</span>
+      <span class="link-name">TikTok</span>
+      <span class="link-arrow">↗</span>
+    </a>
+    <a class="link-item" href="https://www.instagram.com/nxttoyo" target="_blank">
+      <span class="link-platform" data-i18n="link-vi">Visual</span>
+      <span class="link-name">Instagram</span>
+      <span class="link-arrow">↗</span>
+    </a>
+    <a class="link-item" href="https://discord.gg/KMVt2C9zRx" target="_blank">
+      <span class="link-platform" data-i18n="link-c">Community</span>
+      <span class="link-name">Discord Server</span>
+      <span class="link-arrow">↗</span>
+    </a>
+    <a class="link-item" href="https://steamcommunity.com/id/nxttu" target="_blank">
+      <span class="link-platform" data-i18n="link-g">Gaming</span>
+      <span class="link-name">Steam</span>
+      <span class="link-arrow">↗</span>
+    </a>
+  </div>
+</section>
+
+<footer>
+  <p data-i18n="footer-left">nxttu. · est. 2021 · ukraine</p>
+  <p><span data-i18n="footer-right-1">all</span> <span class="meme-target" id="fuck-target" data-i18n="footer-right-2">rights not fucking reserved</span> · <span data-i18n="footer-right-3">open for deals</span></p>
+</footer>
+
+<script>
+  /* ==========================================================================
+     МУЛЬТИМОВНІСТЬ
+     ========================================================================== */
+  const translations = {
+    en: {
+      "nav-about": "about", "nav-music": "music", "nav-stats": "stats", "nav-links": "links", "nav-theme": "theme",
+      "hero-tag": "// experimental electronic artist · est. 2021 · ukraine",
+      "hero-sub": "next to you.",
+      "hero-desc": "Combining ambient textures, breakbeat rhythms and digital noise into emotional soundscapes — focused on atmosphere and raw feeling, not traditional fucked up structure.",
+      "stat-plays": "plays", "stat-likes": "likes", "stat-tracks": "tracks", "stat-years": "years", "scroll": "scroll",
+      "label-about": "01 — about",
+      "about-title": "Started at 4<br>on my brother's<br>computer.",
+      "about-p1": "It started at <em>age 4</em> — sitting on my brother's lap working on his computer, messing with melodies. At 6 I wrote my first \"track\": just a collection of cool sounds, but my brother saw something interesting in it.",
+      "about-p2": "Then came my own computer, hours of dragging notes around in an editor. The old PC broke. I left music behind — until I downloaded <em>FL Studio</em> again and started messing around.",
+      "about-p3": "First nickname: <em>Jonathan Fortile</em>. Then Bearonic, BEARN... until I landed on <em>nxttu.</em> (next to you / nty). Came up with it in class thinking about a friend sitting next to me.",
+      "about-p4": "Now — <em>experimental electronic</em> producer from Ukraine. Open for collabs & deals.",
+      "label-music": "02 — discography",
+      "era-1": "era I · 2021", "album-1-title": "Black Tracks", "album-1-desc": "The era where everything started. Was supposed to be 40 tracks — most were lost or deleted. First trials, errors, drafts. Nothing hidden.",
+      "era-2": "era II · 2025–2026", "album-2-title": "White Tracks", "album-2-desc": "The most emotional period. Tracks made to get things out of my system — chaos and good moments. Each made in 1–2 hours. Raw and honest.",
+      "era-3": "era III · 2026 — ???", "album-3-desc": "Something is being built. This era is still in progress — not sure where it's going yet, but it's coming.",
+      "sc-listen": "Listen on SoundCloud", "modal-text": "To stay updated and follow my upcoming releases, please subscribe to my SoundCloud or TikTok.", "modal-close": "close",
+      "label-stats": "03 — stats by year",
+      "stat-2021": "plays · 24 likes", "stat-2022": "plays · 24 likes", "stat-2023": "plays · 68 likes · 13 com.", "stat-2024": "plays · 15 likes", "stat-2025": "plays · 92 likes · 15 rep.",
+      "label-links": "04 — find me",
+      "link-m": "Music", "link-ms": "Music / Store", "link-v": "Video", "link-sv": "Short Video", "link-vi": "Visual", "link-c": "Community", "link-g": "Gaming",
+      "footer-left": "nxttu. · est. 2021 · ukraine", "footer-right-1": "all", "footer-right-2": "rights not fucking reserved", "footer-right-3": "open for deals",
+      tl: [
+        {y: "~2014", t: "First contact with music", d: "Age 4. Brother's computer. Melodies."},
+        {y: "2016", t: "First \"track\"", d: "Age 6. A collection of cool melodies. Brother was impressed."},
+        {y: "2021", t: "Jonathan Fortile → Bearonic", d: "FL Studio again. First nickname, first mistakes. Black era begins."},
+        {y: "2023", t: "nxttu. is born", d: "New name, new sound. 924 plays — a record at the time."},
+        {y: "2025–26", t: "White era — most emotional period", d: "Growing up, making mistakes, real life. 2GEEKED, drexgod, staticgrl, NIISAN."}
+      ]
+    },
+    ua: {
+      "nav-about": "про мене", "nav-music": "музика", "nav-stats": "статистика", "nav-links": "посилання", "nav-theme": "тема",
+      "hero-tag": "// експериментальний електронний артист · з 2021 · україна",
+      "hero-sub": "поруч із тобою.",
+      "hero-desc": "Поєднання ембієнтних текстур, брейкбіт-ритмів та цифрового шуму в емоційні звукові ландшафти — фокус на атмосфері та чистому почутті, а не на традиційній структурі.",
+      "stat-plays": "прослуховувань", "stat-likes": "лайків", "stat-tracks": "треків", "stat-years": "років", "scroll": "скрол",
+      "label-about": "01 — про мене",
+      "about-title": "Почав у 4 роки<br>на комп'ютері<br>мого брата.",
+      "about-p1": "Все почалося в <em>4 роки</em> — сидів на колінах у брата, бавився на його комп'ютері, підбирав мелодії. У 6 років написав перший \"трек\": просто набір прикольних звуків, але брат помітив у цьому щось цікаве.",
+      "about-p2": "Потім з'явився власний комп, години перетягування нот в редакторі. Старий ПК зламався. Я закинув музику — поки знову не скачав <em>FL Studio</em> і не почав експериментувати.",
+      "about-p3": "Перший нікнейм: <em>Jonathan Fortile</em>. Потім Bearonic, BEARN... поки не зупинився на <em>nxttu.</em> (next to you / nty). Вигадав на уроці, думаючи про подругу, що сиділа поруч.",
+      "about-p4": "Зараз — <em>експериментальний електронний</em> продюсер з України. Відкритий до колаборацій та пропозицій.",
+      "label-music": "02 — дискографія",
+      "era-1": "ера I · 2021", "album-1-title": "Black Tracks", "album-1-desc": "Ера, з якої все почалося. Мало бути 40 треків — більшість втрачено або видалено. Перші спроби, помилки, чернетки. Нічого прихованого.",
+      "era-2": "ера II · 2025–2026", "album-2-title": "White Tracks", "album-2-desc": "Найбільш емоційний період. Треки, створені щоб виплеснути емоції — хаос і хороші моменти. Кожен зроблений за 1–2 години. Сиро та чесно.",
+      "era-3": "ера III · 2026 — ???", "album-3-desc": "Щось будується. Ця ера ще в процесі — поки не знаю, куди вона приведе, але вона наближається.",
+      "sc-listen": "Слухати на SoundCloud", "modal-text": "Щоб залишатися в курсі та стежити за моїми майбутніми релізами, будь ласка, підпишіться на мій SoundCloud або TikTok.", "modal-close": "закрити",
+      "label-stats": "03 — статистика",
+      "stat-2021": "прослуховувань · 24 лайків", "stat-2022": "прослуховувань · 24 лайків", "stat-2023": "прослуховувань · 68 лайків · 13 ком.", "stat-2024": "прослуховувань · 15 лайків", "stat-2025": "прослуховувань · 92 лайків · 15 реп.",
+      "label-links": "04 — знайти мене",
+      "link-m": "Музика", "link-ms": "Музика / Магазин", "link-v": "Відео", "link-sv": "Короткі Відео", "link-vi": "Візуал", "link-c": "Спільнота", "link-g": "Ігри",
+      "footer-left": "nxttu. · з 2021 · україна", "footer-right-1": "усі", "footer-right-2": "права нахрен не захищені", "footer-right-3": "відкритий до пропозицій",
+      tl: [
+        {y: "~2014", t: "Перший контакт з музикою", d: "4 роки. Комп'ютер брата. Мелодії."},
+        {y: "2016", t: "Перший \"трек\"", d: "6 років. Набір крутих мелодій. Брат був вражений."},
+        {y: "2021", t: "Jonathan Fortile → Bearonic", d: "Знову FL Studio. Перший нік, перші факапи. Початок чорної ери."},
+        {y: "2023", t: "Народження nxttu.", d: "Нове ім'я, новий звук. 924 хіти — рекорд на той час."},
+        {y: "2025–26", t: "White era — найемоційніший період", d: "Дорослішання, помилки, реальне життя. 2GEEKED, drexgod, staticgrl, NIISAN."}
+      ]
+    },
+    ru: {
+      "nav-about": "обо мне", "nav-music": "музыка", "nav-stats": "статистика", "nav-links": "ссылки", "nav-theme": "тема",
+      "hero-tag": "// экспериментальный электронный артист · с 2021 · украина",
+      "hero-sub": "рядом с тобой.",
+      "hero-desc": "Смешение эмбиентных текстур, брейкбит-ритмов и цифрового шума в эмоциональные звуковые ландшафты — фокус на атмосфере и чистом чувстве, а не на традиционной структуре.",
+      "stat-plays": "прослушиваний", "stat-likes": "лайков", "stat-tracks": "треков", "stat-years": "лет", "scroll": "скролл",
+      "label-about": "01 — обо мне",
+      "about-title": "Начал в 4 года<br>на компьютере<br>моего брата.",
+      "about-p1": "Все началось в <em>4 года</em> — сидел на коленях у брата, ковырялся в его компе, подбирал мелодии. В 6 лет написал первый \"трек\": просто набор прикольных звуков, но брат заметил в этом что-то интересное.",
+      "about-p2": "Потом появился собственный комп, часы перетаскивания нот в редакторе. Старый ПК сломался. Я забросил музыку — пока снова не скачал <em>FL Studio</em> и не начал экспериментировать.",
+      "about-p3": "First nickname: <em>Jonathan Fortile</em>. Then Bearonic, BEARN... until I landed on <em>nxttu.</em> (next to you / nty). Придумал на уроке, думая о подруге, сидящей рядом.",
+      "about-p4": "Сейчас — <em>экспериментальный электронный</em> продюсер из Украины. Открыт для коллабораций и предложений.",
+      "label-music": "02 — дискография",
+      "era-1": "эра I · 2021", "album-1-title": "Black Tracks", "album-1-desc": "Эра, с которой все началось. Должно было быть 40 треков — большинство потеряно или удалено. Первые пробы, ошибки, черновики. Ничего скрытого.",
+      "era-2": "эра II · 2025–2026", "album-2-title": "White Tracks", "album-2-desc": "Самый эмоциональный период. Треки, созданные чтобы выплеснуть эмоции — хаос и хорошие моменты. Каждый сделан за 1–2 часа. Сыро и честно.",
+      "era-3": "эра III · 2026 — ???", "album-3-desc": "Что-то строится. Эта эра еще в процессе — пока не знаю, куда она приведет, но она приближается.",
+      "sc-listen": "Слушать на SoundCloud", "modal-text": "Чтобы оставаться в курсе и следить за моими будущими релизами, пожалуйста, подпишитесь на мой SoundCloud или TikTok.", "modal-close": "закрыть",
+      "label-stats": "03 — статистика",
+      "stat-2021": "прослушиваний · 24 лайков", "stat-2022": "прослушиваний · 24 лайков", "stat-2023": "прослушиваний · 68 лайков · 13 ком.", "stat-2024": "прослушиваний · 15 лайков", "stat-2025": "прослушиваний · 92 лайков · 15 реп.",
+      "label-links": "04 — найти меня",
+      "link-m": "Музыка", "link-ms": "Music / Store", "link-v": "Видео", "link-sv": "Короткие Видео", "link-vi": "Визуал", "link-c": "Сообщество", "link-g": "Игры",
+      "footer-left": "nxttu. · с 2021 · украина", "footer-right-1": "все", "footer-right-2": "права нахрен не защищены", "footer-right-3": "открыт для предложений",
+      tl: [
+        {y: "~2014", t: "Первый контакт с музыкой", d: "4 года. Компьютер брата. Мелодии."},
+        {y: "2016", t: "Первый \"трек\"", d: "6 лет. Набор крутых мелодий. Брат был впечатлен."},
+        {y: "2021", t: "Jonathan Fortile → Bearonic", d: "Снова FL Studio. Первый ник, первые факапы. Начало черной эры."},
+        {y: "2023", t: "Рождение nxttu.", d: "Новое имя, nuevo sound. 924 хита — рекорд на то время."},
+        {y: "2025–26", t: "White era — самый эмоциональный период", d: "Взросление, ошибки, реальная жизнь. 2GEEKED, drexgod, staticgrl, NIISAN."}
+      ]
+    },
+    pl: {
+      "nav-about": "o mnie", "nav-music": "muzyka", "nav-stats": "statystyki", "nav-links": "linki", "nav-theme": "motyw",
+      "hero-tag": "// eksperymentalny artysta elektroniczny · od 2021 · ukraina",
+      "hero-sub": "obok ciebie.",
+      "hero-desc": "Łączenie tekstur ambientowych, rytmów breakbeatowych i cyfrowego szumu w emocjonalne pejzaże dźwiękowe — skupienie na atmosferze, a no nie na tradycyjnej strukturze.",
+      "stat-plays": "odtworzeń", "stat-likes": "polubień", "stat-tracks": "utworów", "stat-years": "lat", "scroll": "przewiń",
+      "label-about": "01 — o mnie",
+      "about-title": "Zacząłem w wieku 4 lat<br>na komputerze<br>mojego brata.",
+      "about-p1": "Zaczęło się w wieku <em>4 lat</em> — siedząc na kolanach brata, bawiłem się na jego komputerze, układałem melodie. W wieku 6 lat napisałem swój pierwszy \"utwór\": po prostu zbiór fajnych dźwięków, ale mój brat zauważył w tym coś ciekawego.",
+      "about-p2": "Potem przyszedł własny komputer, godziny przeciągania nut w edytorze. Stary PC się zepsuł. Porzuciłem muzykę — dopóki znów nie pobrałem <em>FL Studio</em> i nie zacząłem eksperymentować.",
+      "about-p3": "First nickname: <em>Jonathan Fortile</em>. Then Bearonic, BEARN... aż trafiłem na <em>nxttu.</em> (next to you / nty). Wymyśliłem to na lekcji, myśląc o koleżance siedzącej obok.",
+      "about-p4": "Teraz — <em>eksperymentalny producent muzyki elektronicznej</em> z Ukrainy. Otwarty na współpracę i oferty.",
+      "label-music": "02 — dyskografia",
+      "era-1": "era I · 2021", "album-1-title": "Black Tracks", "album-1-desc": "Blacha era.",
+      "era-2": "era II · 2025–2026", "album-2-title": "White Tracks", "album-2-desc": "Najbardziej emocjonalny okres. Utwory stworzone, by wyrzucić z siebie emocje — chaos i dobre chwile. Każdy powstał w 1–2 godziny. Surowe i szczere.",
+      "era-3": "era III · 2026 — ???", "album-3-desc": "Coś się buduje. Ta era wciąż trwa — nie wiem jeszcze, dokąd zmierza, ale nadchodzi.",
+      "sc-listen": "Słuchaj na SoundCloud", "modal-text": "Aby być na bieżąco i śledzić moje nadchodzące wydania, zasubskrybuj mój SoundCloud lub TikTok.", "modal-close": "zamknij",
+      "label-stats": "03 — statystyki",
+      "stat-2021": "odtworzeń · 24 polubienia", "stat-2022": "odtworzeń · 24 polubienia", "stat-2023": "odtworzeń · 68 polubień · 13 kom.", "stat-2024": "odtworzeń · 15 polubień", "stat-2025": "odtworzeń · 92 polubienia · 15 rep.",
+      "label-links": "04 — znajdź mnie",
+      "link-m": "Muzyka", "link-ms": "Music / Store", "link-v": "Wideo", "link-sv": "Krótkie Wideo", "link-vi": "Wizualia", "link-c": "Społeczność", "link-g": "Gry",
+      "footer-left": "nxttu. · od 2021 · ukraina", "footer-right-1": "wszystkie", "footer-right-2": "prawa nienachalnie zastrzeżone", "footer-right-3": "otwarty na oferty",
+      tl: [
+        {y: "~2014", t: "Pierwszy kontakt z muzyką", d: "Wiek 4 lat. Komputer brata. Melodie."},
+        {y: "2016", t: "Pierwszy \"utwór\"", d: "Wiek 6 lat. Zbiór fajnych melodii. Brat był pod wrażeniem."},
+        {y: "2021", t: "Jonathan Fortile → Bearonic", d: "Znów FL Studio. Pierwszy pseudonim, pierwsze błędy. Początek czarnej ery."},
+        {y: "2023", t: "Narodziny nxttu.", d: "Nowa nazwa, nowy dźwięk. 924 odtworzenia — ówczesny rekord."},
+        {y: "2025–26", t: "White era — najbardziej emocjonalny okres", d: "Dorastanie, błędy, prawdziwe życie. 2GEEKED, drexgod, staticgrl, NIISAN."}
+      ]
+    },
+    it: {
+      "nav-about": "info", "nav-music": "musica", "nav-stats": "statistiche", "nav-links": "link", "nav-theme": "tema",
+      "hero-tag": "// artista elettronico sperimentale · dal 2021 · ucraina",
+      "hero-sub": "accanto a te.",
+      "hero-desc": "Unire texture ambient, ritmi breakbeat e rumore digitale in paesaggi sonori emotivi — focalizzato sull'atmosfera e sul sentimento puro, non sulla struttura tradizionale.",
+      "stat-plays": "ascolti", "stat-likes": "like", "stat-tracks": "tracce", "stat-years": "anni", "scroll": "scorri",
+      "label-about": "01 — info",
+      "about-title": "Iniziato a 4 anni<br>sul computer<br>di mio fratello.",
+      "about-p1": "Tutto è iniziato a <em>4 anni</em> — seduto in braccio a mio fratello al computer, giocando con le melodie. A 6 anni ho scritto la mia prima \"traccia\": solo un insieme di bei suoni, ma mio fratello ci vide qualcosa di interessante.",
+      "about-p2": "Poi è arrivato il mio computer, ore a trascinare note in un editor. Il vecchio PC si è rotto. Ho lasciato la musica — finché non ho riscaricato <em>FL Studio</em> e ho ricominciato a sperimentare.",
+      "about-p3": "First nickname: <em>Jonathan Fortile</em>. Then Bearonic, BEARN... fino ad arrivare a <em>nxttu.</em> (next to you / nty). Mi è venuto in mente in classe pensando a un'amica seduta accanto a me.",
+      "about-p4": "Ora — produttore <em>elettronico sperimentale</em> dall'Ucraina. Aperto a collaborazioni e contratti.",
+      "label-music": "02 — discografia",
+      "era-1": "era I · 2021", "album-1-title": "Black Tracks", "album-1-desc": "L'era in cui tutto è iniziato. Doveva contenere 40 tracce — la maggior parte è andata persa o cancellata. Primi tentativi, errori, bozze. Nulla di nascosto.",
+      "era-2": "era II · 2025–2026", "album-2-title": "White Tracks", "album-2-desc": "Il periodo più emotivo. Tracce create per sfogarsi — caos e bei momenti. Ognuna creata in 1–2 ore. Cruda e sincera.",
+      "era-3": "era III · 2026 — ???", "album-3-desc": "Qualcosa si sta costruendo. Questa era è ancora in corso — non so ancora dove porterà, ma sta arrivando.",
+      "sc-listen": "Ascolta su SoundCloud", "modal-text": "Per rimanere aggiornato e seguire le mie prossime uscite, iscriviti al mio SoundCloud o TikTok.", "modal-close": "chiudi",
+      "label-stats": "03 — statistiche",
+      "stat-2021": "ascolti · 24 like", "stat-2022": "ascolti · 24 like", "stat-2023": "ascolti · 68 like · 13 com.", "stat-2024": "ascolti · 15 like", "stat-2025": "ascolti · 92 like · 15 rep.",
+      "label-links": "04 — trovami",
+      "link-m": "Musica", "link-ms": "Music / Store", "link-v": "Video", "link-sv": "Video Brevi", "link-vi": "Visual", "link-c": "Community", "link-g": "Gaming",
+      "footer-left": "nxttu. · dal 2021 · ucraina", "footer-right-1": "tutti i", "footer-right-2": "diritti non fottutamente riservati", "footer-right-3": "aperto a proposte",
+      tl: [
+        {y: "~2014", t: "Primo contatto con la musica", d: "Età 4 anni. Computer del fratello. Melodie."},
+        {y: "2016", t: "Prima \"traccia\"", d: "Età 6 anni. Una raccolta di belle melodie. Mio fratello rimase colpito."},
+        {y: "2021", t: "Jonathan Fortile → Bearonic", d: "Di nuovo FL Studio. Primo pseudonimo, primi errori. Inizia l'era nera."},
+        {y: "2023", t: "Nasce nxttu.", d: "Nuovo nome, nuovo sound. 924 ascolti — un record all'epoca."},
+        {y: "2025–26", t: "White era — il periodo più emotivo", d: "Crescer, fare errori, vita vera. 2GEEKED, drexgod, staticgrl, NIISAN."}
+      ]
+    },
+    es: {
+      "nav-about": "info", "nav-music": "música", "nav-stats": "estadísticas", "nav-links": "enlaces", "nav-theme": "tema",
+      "hero-tag": "// artista electrónico experimental · desde 2021 · ucrania",
+      "hero-sub": "al lado de ti.",
+      "hero-desc": "Combinando texturas ambient, ritmos breakbeat y ruido digital en paisajes sonoros emocionales — enfocado en la atmósfera y el sentimiento puro, no en la estructura tradicional.",
+      "stat-plays": "reproducciones", "stat-likes": "likes", "stat-tracks": "pistas", "stat-years": "años", "scroll": "bajar",
+      "label-about": "01 — sobre mí",
+      "about-title": "Comenzó a los 4 años<br>en la computadora<br>de mi hermano.",
+      "about-p1": "Todo empezó a los <em>4 años</em> — sentado en el regajo de mi hermano en su computadora, jugando con melodías. A los 6 escribí mi primera \"pista\": solo una colección de sonidos geniales, pero mi hermano vio algo interesante en ella.",
+      "about-p2": "Luego vino mi propia computadora, horas arrastrando notas en un editor. La vieja PC se rompió. Dejé la música — hasta que volví a descargar <em>FL Studio</em> y comencé a experimentar.",
+      "about-p3": "First nickname: <em>Jonathan Fortile</em>. Then Bearonic, BEARN... hasta que llegué a <em>nxttu.</em> (next to you / nty). Se me ocurrió en clase pensando en una amiga sentada a mi lado.",
+      "about-p4": "Ahora — productor <em>electrónico experimental</em> de Ucrania. Abierto a colaboraciones y contratos.",
+      "label-music": "02 — discografía",
+      "era-1": "era I · 2021", "album-1-title": "Black Tracks", "album-1-desc": "La era donde todo comenzó. Se suponía que serían 40 pistas — la mayoría se perdió o se eliminó. Primeras pruebas, errores, borradores. Nada oculto.",
+      "era-2": "era II · 2025–2026", "album-2-title": "White Tracks", "album-2-desc": "El periodo más emocional. Pistas hechas para desahogarme — caos y buenos momentos. Cada una hecha en 1–2 horas. Crudo y honesto.",
+      "era-3": "era III · 2026 — ???", "album-3-desc": "Algo se está construyendo. Esta era aún está en progreso — no estoy seguro de a dónde va, pero viene.",
+      "sc-listen": "Escuchar en SoundCloud", "modal-text": "Para mantenerte actualizado и seguir mis próximos lanzamientos, por favor suscríbete a mi SoundCloud o TikTok.", "modal-close": "cerrar",
+      "label-stats": "03 — estadísticas",
+      "stat-2021": "reproducciones · 24 likes", "stat-2022": "reproducciones · 24 likes", "stat-2023": "reproducciones · 68 likes · 13 com.", "stat-2024": "reproducciones · 15 likes", "stat-2025": "reproducciones · 92 likes · 15 rep.",
+      "label-links": "04 — encuéntrame",
+      "link-m": "Música", "link-ms": "Music / Store", "link-v": "Video", "link-sv": "Video Corto", "link-vi": "Visual", "link-c": "Comunidad", "link-g": "Juegos",
+      "footer-left": "nxttu. · desde 2021 · ucrania", "footer-right-1": "todos los", "footer-right-2": "derechos no jodidamente reservados", "footer-right-3": "abierto a negocios",
+      tl: [
+        {y: "~2014", t: "Primer contacto con la música", d: "Edad 4 años. Computadora de mi hermano. Melodías."},
+        {y: "2016", t: "Primera \"pista\"", d: "Edad 6 años. Una colección de melodías geniales. Mi hermano quedó impresionado."},
+        {y: "2021", t: "Jonathan Fortile → Bearonic", d: "FL Studio de nuevo. Primer apodo, primeros errores. Comienza la era negra."},
+        {y: "2023", t: "Nace nxttu.", d: "Nuevo nombre, nuevo sonido. 924 reproducciones — un récord en ese momento."},
+        {y: "2025–26", t: "White era — el periodo más emocional", d: "Creciendo, cometiendo errores, vida real. 2GEEKED, drexgod, staticgrl, NIISAN."}
+      ]
+    }
+  };
+
+  function updateLanguage(lang) {
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.getAttribute('data-i18n');
+      if (translations[lang][key]) {
+        el.innerHTML = translations[lang][key];
+      }
+    });
+
+    const aboutBody = document.getElementById('about-text');
+    if (aboutBody) {
+      aboutBody.innerHTML = `
+        <p>${translations[lang]['about-p1']}</p>
+        <p>${translations[lang]['about-p2']}</p>
+        <p>${translations[lang]['about-p3']}</p>
+        <p>${translations[lang]['about-p4']}</p>
+      `;
+    }
+
+    const timelineBox = document.getElementById('timeline-box');
+    if (timelineBox) {
+      timelineBox.innerHTML = '';
+      translations[lang].tl.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'tl-item';
+        div.innerHTML = `
+          <span class="tl-year">${item.y}</span>
+          <div class="tl-content">
+            <h4>${item.t}</h4>
+            <p>${item.d}</p>
+          </div>
+        `;
+        timelineBox.appendChild(div);
+      });
+    }
+  }
+
+  const langSelector = document.getElementById('lang-selector');
+  langSelector.addEventListener('change', (e) => {
+    updateLanguage(e.target.value);
+  });
+
+  updateLanguage('en');
+
+  /* ==========================================================================
+     ТЕМИ
+     ========================================================================== */
+  const themeBtn = document.getElementById('theme-btn');
+  themeBtn.addEventListener('click', () => {
+    document.body.classList.toggle('light-theme');
+  });
+
+  /* ==========================================================================
+     ТАЄМНА ПАСХАЛКА — РІКРОЛЛ
+     ========================================================================== */
+  const fuckTarget = document.getElementById('fuck-target');
+  if (fuckTarget) {
+    fuckTarget.addEventListener('click', () => {
+      window.open('https://www.youtube.com/watch?v=dQw4w9WgXcQ', '_blank');
+    });
+  }
+
+  /* ==========================================================================
+     МОДАЛКА (To Be Continued)
+     ========================================================================== */
+  const tbcTrigger = document.getElementById('tbc-trigger');
+  const modal = document.getElementById('modal-container');
+  const modalClose = document.getElementById('modal-close-btn');
+
+  if (tbcTrigger && modal && modalClose) {
+    tbcTrigger.addEventListener('click', (e) => {
+      e.preventDefault();
+      modal.classList.add('active');
+    });
+
+    modalClose.addEventListener('click', () => {
+      modal.classList.remove('active');
+    });
+
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        modal.classList.remove('active');
+      }
+    });
+  }
+</script>
+
+</body>
+</html>
