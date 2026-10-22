@@ -540,6 +540,14 @@ function initMenus() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  // infinite drifting starfield background
+  if (!document.querySelector('.bg-stars')) {
+    const bg = document.createElement('div');
+    bg.className = 'bg-stars';
+    bg.setAttribute('aria-hidden', 'true');
+    document.body.appendChild(bg);
+  }
+
   // restore prefs
   const savedLang = localStorage.getItem('nxttu-lang') || 'en';
   const savedTheme = localStorage.getItem('nxttu-theme') || 'webcore';
