@@ -1,17 +1,19 @@
+/* ===================================================================
+   nxttu. — cursor trail
+   The head of the trail sits exactly on the pointer and every following
+   point eases toward the one in front of it, so the tail always drags
+   BEHIND the cursor. When the pointer stops the whole trail fades out,
+   so it never piles up into a white blob.
+   Disabled on touch devices.
+   =================================================================== */
 (() => {
-  // Вимикаємо на сенсорних пристроях
   if ("ontouchstart" in window || navigator.maxTouchPoints > 0) return;
 
   const canvas = document.createElement("canvas");
   const ctx = canvas.getContext("2d");
 
-  canvas.style.position = "fixed";
-  canvas.style.left = "0";
-  canvas.style.top = "0";
-  canvas.style.width = "100vw";
-  canvas.style.height = "100vh";
-  canvas.style.pointerEvents = "none";
-  canvas.style.zIndex = "999999";
+  canvas.style.cssText =
+    "position:fixed;left:0;top:0;width:100vw;height:100vh;pointer-events:none;z-index:999999;";
 
   document.body.appendChild(canvas);
 
@@ -25,90 +27,80 @@
   addEventListener("resize", resize);
 
   const mouse = { x: innerWidth / 2, y: innerHeight / 2 };
-  const vel = { x: 0, y: 0 };
-  let lastX = mouse.x, lastY = mouse.y;
 
-  const trail = [];
-
-  let trailLength = 12;
+  let trailLength = 14;
   let pointSize = 7;
   let hue = 0;
   let hueSpeed = 1.5;
+  let fade = 0;            // 1 while moving, eases to 0 once the pointer is still
 
-  for (let i = 0; i < trailLength; i++) {
-    trail.push({ x: mouse.x, y: mouse.y });
-  }
+  const trail = [];
+  for (let i = 0; i < trailLength; i++) trail.push({ x: mouse.x, y: mouse.y });
+
+  let lastMove = 0;
 
   window.addEventListener("mousemove", e => {
-    vel.x = e.clientX - lastX;
-    vel.y = e.clientY - lastY;
-    lastX = e.clientX;
-    lastY = e.clientY;
     mouse.x = e.clientX;
     mouse.y = e.clientY;
+    lastMove = performance.now();
   });
 
-  function lerp(a, b, t) {
-    return a + (b - a) * t;
-  }
-
-  function updateTrail() {
-    // швидкість затухає, коли курсор нерухомий — хвіст стягується до курсора
-    vel.x *= 0.8;
-    vel.y *= 0.8;
-
-    trail[0].x = lerp(trail[0].x, mouse.x, 0.6);
-    trail[0].y = lerp(trail[0].y, mouse.y, 0.6);
-
-    // точки випереджають курсор у напрямку руху (хвіст веде, не відстає)
-    for (let i = 1; i < trail.length; i++) {
-      const tx = mouse.x + vel.x * i * 0.5;
-      const ty = mouse.y + vel.y * i * 0.5;
-      trail[i].x = lerp(trail[i].x, tx, 0.5);
-      trail[i].y = lerp(trail[i].y, ty, 0.5);
+  function ensureLength(n) {
+    while (trail.length < n) {
+      const tail = trail[trail.length - 1] || mouse;
+      trail.push({ x: tail.x, y: tail.y });
     }
+    trail.length = n;
   }
 
-  function drawTrail() {
+  function update() {
+    trail[0].x = mouse.x;
+    trail[0].y = mouse.y;
+
+    for (let i = 1; i < trail.length; i++) {
+      trail[i].x += (trail[i - 1].x - trail[i].x) * 0.35;
+      trail[i].y += (trail[i - 1].y - trail[i].y) * 0.35;
+    }
+
+    // still for longer than ~90ms → fade the tail away over ~250ms instead of
+    // stacking every point on one pixel (which used to turn it white).
+    // Time-based, so it behaves the same at any frame rate.
+    const idle = performance.now() - lastMove;
+    fade = idle <= 90 ? 1 : Math.max(0, 1 - (idle - 90) / 250);
+  }
+
+  function draw() {
     ctx.clearRect(0, 0, innerWidth, innerHeight);
 
-    for (let i = trail.length - 1; i >= 0; i--) {
+    if (fade > 0.01) {
+      ctx.globalCompositeOperation = "source-over";
+      ctx.shadowBlur = 10;
 
-      const p = trail[i];
+      for (let i = trail.length - 1; i >= 0; i--) {
+        const p = trail[i];
+        const t = i / trail.length;               // 0 at the pointer, 1 at the tail
+        const alpha = (1 - t) * 0.85 * fade;
+        if (alpha <= 0.01) continue;
 
-      const size =
-        pointSize *
-        (1 - i / trail.length);
+        const color = `hsl(${(hue + i * 8) % 360},100%,60%)`;
 
-      const alpha =
-        1 - i / trail.length;
+        ctx.beginPath();
+        ctx.globalAlpha = alpha;
+        ctx.fillStyle = color;
+        ctx.shadowColor = color;
+        ctx.arc(p.x, p.y, pointSize * (1 - t), 0, Math.PI * 2);
+        ctx.fill();
+      }
 
-      ctx.beginPath();
-
-      ctx.fillStyle =
-        `hsla(${(hue + i * 8) % 360},100%,60%,${alpha})`;
-
-      ctx.shadowBlur = 15;
-      ctx.shadowColor =
-        `hsl(${(hue + i * 8) % 360},100%,60%)`;
-
-      ctx.arc(
-        p.x,
-        p.y,
-        size,
-        0,
-        Math.PI * 2
-      );
-
-      ctx.fill();
+      ctx.globalAlpha = 1;
     }
 
     hue += hueSpeed;
   }
 
   function animate() {
-    updateTrail();
-    drawTrail();
+    update();
+    draw();
     requestAnimationFrame(animate);
   }
 
@@ -118,41 +110,27 @@
     "a, button, input, textarea, select, .btn, [data-cursor-hover]";
 
   function hoverOn() {
-    trailLength = 18;
-    pointSize = 12;
+    trailLength = 20;
+    pointSize = 11;
     hueSpeed = 5;
-
-    while (trail.length < trailLength) {
-      trail.push({
-        x: trail[trail.length - 1].x,
-        y: trail[trail.length - 1].y
-      });
-    }
-
-    canvas.style.filter =
-      "brightness(1.35) saturate(1.6)";
+    ensureLength(trailLength);
+    canvas.style.filter = "brightness(1.3) saturate(1.5)";
   }
 
   function hoverOff() {
-    trailLength = 12;
+    trailLength = 14;
     pointSize = 7;
     hueSpeed = 1.5;
-
-    trail.length = trailLength;
-
+    ensureLength(trailLength);
     canvas.style.filter = "";
   }
 
   document.addEventListener("mouseover", e => {
-    if (e.target.closest(hoverSelector)) {
-      hoverOn();
-    }
+    if (e.target.closest(hoverSelector)) hoverOn();
   });
 
   document.addEventListener("mouseout", e => {
-    if (e.target.closest(hoverSelector)) {
-      hoverOff();
-    }
+    if (e.target.closest(hoverSelector)) hoverOff();
   });
 
 })();

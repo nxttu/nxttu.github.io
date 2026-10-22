@@ -1,11 +1,14 @@
 /* ===================================================================
    nxttu. — falling-star background
-   Bright stars fall diagonally and twinkle on a canvas that is drawn
-   behind every page element (z-index -1), so they never cover the text.
+   Bright stars fall diagonally (down-left, 45°) and twinkle on a canvas
+   that is drawn behind every page element (z-index -1), so they never
+   cover the text. The fall always plays — the OS "reduce motion"
+   preference only slows it down, it never freezes it.
    =================================================================== */
 (() => {
   const reduceMotion = window.matchMedia &&
     window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const MOTION_SCALE = reduceMotion ? 0.5 : 1;
 
   const canvas = document.createElement('canvas');
   canvas.className = 'bg-stars';
@@ -24,10 +27,10 @@
   function makeStar(initial) {
     const size = 2 + Math.random() * 4;
     return {
-      x: Math.random() * (W + 140) - 70,
+      x: Math.random() * W,
       y: initial ? Math.random() * H : -20 - Math.random() * 90,
       size,
-      speed: 0.35 + size * 0.3,
+      speed: 0.6 + size * 0.35,
       phase: Math.random() * Math.PI * 2,
       twinkle: 0.6 + Math.random() * 1.6
     };
@@ -58,7 +61,7 @@
     ctx.globalCompositeOperation = 'lighter';
 
     for (const s of stars) {
-      // twinkle: alpha pulses between 0.35 and 1
+      // twinkle: alpha pulses
       const alpha = 0.5 + 0.5 * (0.5 + 0.5 * Math.sin(s.phase));
 
       ctx.beginPath();
@@ -68,18 +71,18 @@
       ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
       ctx.fill();
 
-      if (!reduceMotion) {
-        s.x += DX * s.speed * dt;
-        s.y += DY * s.speed * dt;
-        s.phase += s.twinkle * 0.05 * dt;
-      }
+      // diagonal fall — same distance on X and Y, so it is always 45°
+      const step = s.speed * dt * MOTION_SCALE;
+      s.x += DX * step;
+      s.y += DY * step;
+      s.phase += s.twinkle * 0.05 * dt;
 
       if (s.y - s.size > H + 6 || s.x + s.size < -6) {
         Object.assign(s, makeStar(false));
       }
     }
 
-    if (!reduceMotion) requestAnimationFrame(frame);
+    requestAnimationFrame(frame);
   }
 
   resize();

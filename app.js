@@ -6,7 +6,7 @@
 
 const translations = {
   en: {
-    "nav-about": "about", "nav-music": "music", "nav-stats": "stats", "nav-links": "links", "nav-theme": "theme",
+    "nav-about": "about", "nav-music": "music", "nav-stats": "stats", "nav-links": "links", "nav-theme": "climax",
     "hero-tag": "// experimental electronic artist · est. 2021 · ukraine",
     "hero-sub": "next to you.",
     "hero-desc": "Combining ambient textures, breakbeat rhythms and digital noise into emotional soundscapes — focused on atmosphere and raw feeling, not traditional fucked up structure.",
@@ -37,7 +37,7 @@ const translations = {
     ]
   },
   ua: {
-    "nav-about": "про мене", "nav-music": "музика", "nav-stats": "статистика", "nav-links": "посилання", "nav-theme": "Теми",
+    "nav-about": "про мене", "nav-music": "музика", "nav-stats": "статистика", "nav-links": "посилання", "nav-theme": "climax",
     "hero-tag": "// експериментальний електронний артист · з 2021 · україна",
     "hero-sub": "поруч із тобою.",
     "hero-desc": "Поєднання ембієнтних текстур, брейкбіт-ритмів та цифрового шуму в емоційні звукові ландшафти — фокус на атмосфері та чистому почутті, а не на традиційній структурі.",
@@ -68,7 +68,7 @@ const translations = {
     ]
   },
   ru: {
-    "nav-about": "обо мне", "nav-music": "музыка", "nav-stats": "статистика", "nav-links": "ссылки", "nav-theme": "тема",
+    "nav-about": "обо мне", "nav-music": "музыка", "nav-stats": "статистика", "nav-links": "ссылки", "nav-theme": "climax",
     "hero-tag": "// экспериментальный электронный артист · с 2021 · украина",
     "hero-sub": "рядом с тобой.",
     "hero-desc": "Смешение эмбиентных текстур, брейкбит-ритмов и цифрового шума в эмоциональные звуковые ландшафты — фокус на атмосфере и чистом чувстве, а не на традиционной структуре.",
@@ -99,7 +99,7 @@ const translations = {
     ]
   },
   pl: {
-    "nav-about": "o mnie", "nav-music": "muzyka", "nav-stats": "statystyki", "nav-links": "linki", "nav-theme": "motyw",
+    "nav-about": "o mnie", "nav-music": "muzyka", "nav-stats": "statystyki", "nav-links": "linki", "nav-theme": "climax",
     "hero-tag": "// eksperymentalny artysta elektroniczny · od 2021 · ukraina",
     "hero-sub": "obok ciebie.",
     "hero-desc": "Łączenie tekstur ambientowych, rytmów breakbeatowych i cyfrowego szumu w emocjonalne pejzaże dźwiękowe — skupienie na atmosferze, a no nie na tradycyjnej strukturze.",
@@ -130,7 +130,7 @@ const translations = {
     ]
   },
   it: {
-    "nav-about": "info", "nav-music": "musica", "nav-stats": "statistiche", "nav-links": "link", "nav-theme": "tema",
+    "nav-about": "info", "nav-music": "musica", "nav-stats": "statistiche", "nav-links": "link", "nav-theme": "climax",
     "hero-tag": "// artista elettronico sperimentale · dal 2021 · ucraina",
     "hero-sub": "accanto a te.",
     "hero-desc": "Unire texture ambient, ritmi breakbeat e rumore digitale in paesaggi sonori emotivi — focalizzato sull'atmosfera e sul sentimento puro, non sulla struttura tradizionale.",
@@ -161,7 +161,7 @@ const translations = {
     ]
   },
   es: {
-    "nav-about": "info", "nav-music": "música", "nav-stats": "estadísticas", "nav-links": "enlaces", "nav-theme": "tema",
+    "nav-about": "info", "nav-music": "música", "nav-stats": "estadísticas", "nav-links": "enlaces", "nav-theme": "climax",
     "hero-tag": "// artista electrónico experimental · desde 2021 · ucrania",
     "hero-sub": "al lado de ti.",
     "hero-desc": "Combinando texturas ambient, ritmos breakbeat y ruido digital en paisajes sonoros emocionales — enfocado en la atmósfera y el sentimiento puro, no en la estructura tradicional.",
@@ -215,17 +215,75 @@ function applyLanguage(lang) {
   }
 }
 
-function applyTheme(theme) {
-  if (theme === 'black') document.body.classList.add('black-theme');
-  else document.body.classList.remove('black-theme');
+/* ---------- Themes (climax) ---------- */
+const THEMES = [
+  { key: 'webcore', label: 'Webcore', dark: false },
+  { key: 'black', label: 'Black', dark: true },
+  { key: 'neon', label: 'Neon', dark: true },
+  { key: 'terminal', label: 'Terminal', dark: true },
+  { key: 'midnight', label: 'Midnight', dark: true },
+  { key: 'lava', label: 'Lava', dark: true },
+  { key: 'blood', label: 'Blood', dark: true },
+  { key: 'toxic', label: 'Toxic', dark: true },
+  { key: 'plum', label: 'Plum', dark: true },
+  { key: 'vaporwave', label: 'Vaporwave', dark: false },
+  { key: 'sakura', label: 'Sakura', dark: false },
+  { key: 'sunset', label: 'Sunset', dark: false },
+  { key: 'ocean', label: 'Ocean', dark: false },
+  { key: 'forest', label: 'Forest', dark: false },
+  { key: 'ice', label: 'Ice', dark: false },
+  { key: 'gold', label: 'Gold', dark: false },
+  { key: 'retro', label: 'Retro', dark: false },
+  { key: 'pastel', label: 'Pastel', dark: false },
+  { key: 'mono', label: 'Mono', dark: false },
+  { key: 'sky', label: 'Sky', dark: false },
+  { key: 'candy', label: 'Candy', dark: false },
+  { key: 'sand', label: 'Sand', dark: false }
+];
+
+function applyTheme(key) {
+  const theme = THEMES.find(t => t.key === key) || THEMES[0];
+  document.body.dataset.theme = theme.key;
+  document.body.classList.toggle('theme-dark', theme.dark);
+  localStorage.setItem('nxttu-theme', theme.key);
 }
 
-function toggleTheme() {
-  const isBlack = document.body.classList.contains('black-theme');
-  const next = isBlack ? 'webcore' : 'black';
-  localStorage.setItem('nxttu-theme', next);
-  applyTheme(next);
+function showThemeMenu() {
+  const open = document.getElementById('theme-menu');
+  if (open) { open.remove(); return; }
+  const btn = document.getElementById('theme-btn');
+  const current = document.body.dataset.theme || 'webcore';
+
+  const menu = document.createElement('div');
+  menu.className = 'theme-menu';
+  menu.id = 'theme-menu';
+  THEMES.forEach(t => {
+    const item = document.createElement('button');
+    item.type = 'button';
+    item.className = 'theme-menu-item' + (t.key === current ? ' selected' : '');
+    item.textContent = t.label;
+    item.addEventListener('click', () => {
+      applyTheme(t.key);
+      menu.querySelectorAll('.theme-menu-item').forEach(i => i.classList.remove('selected'));
+      item.classList.add('selected');
+    });
+    menu.appendChild(item);
+  });
+  document.body.appendChild(menu);
+
+  if (btn) {
+    const rect = btn.getBoundingClientRect();
+    menu.style.top = (rect.bottom + 6) + 'px';
+    menu.style.right = Math.max(8, window.innerWidth - rect.right) + 'px';
+  }
 }
+
+document.addEventListener('click', e => {
+  const menu = document.getElementById('theme-menu');
+  if (!menu) return;
+  if (e.target.closest('#theme-menu') || e.target.closest('#theme-btn')) return;
+  menu.remove();
+});
 
 /* ---------- Font switching (Format menu) ---------- */
 const fontStacks = {
@@ -366,20 +424,43 @@ function renderClippy() {
 let topZ = 100;
 function bringFront(win) { win.style.zIndex = ++topZ; }
 
+/* Windows float above the page. The first time one is moved/resized it leaves
+   the document flow into a fixed layer, and a placeholder keeps its original
+   space — so dragging a window never reflows (compresses) the interface. */
+function detachWindow(win, lockHeight) {
+  const rect = win.getBoundingClientRect();
+  if (win.dataset.floating !== '1') {
+    const ph = document.createElement('div');
+    ph.className = 'win-placeholder';
+    const cs = getComputedStyle(win);
+    ph.style.height = rect.height + 'px';
+    ph.style.marginTop = cs.marginTop;
+    ph.style.marginBottom = cs.marginBottom;
+    win.parentNode.insertBefore(ph, win);
+    win.dataset.floating = '1';
+  }
+  win.style.position = 'fixed';
+  win.style.left = rect.left + 'px';
+  win.style.top = rect.top + 'px';
+  win.style.width = rect.width + 'px';
+  if (lockHeight) win.style.height = rect.height + 'px';
+  win.style.margin = '0';
+  return rect;
+}
+
+function dropPlaceholder(win) {
+  const ph = win.previousElementSibling;
+  if (ph && ph.classList.contains('win-placeholder')) ph.remove();
+}
+
 function makeDraggable(win) {
   const bar = win.querySelector('.win-titlebar');
   if (!bar) return;
   bar.addEventListener('mousedown', e => {
     if (e.target.closest('.win-btn') || e.target.closest('.win-menu') || win.classList.contains('maximized')) return;
     bringFront(win);
-    const rect = win.getBoundingClientRect();
+    const rect = detachWindow(win);
     const sx = e.clientX, sy = e.clientY;
-    win.style.position = 'fixed';
-    win.style.left = rect.left + 'px';
-    win.style.top = rect.top + 'px';
-    win.style.width = rect.width + 'px';
-    win.style.height = rect.height + 'px';
-    win.style.margin = '0';
     const move = ev => {
       win.style.left = (rect.left + ev.clientX - sx) + 'px';
       win.style.top = (rect.top + ev.clientY - sy) + 'px';
@@ -398,12 +479,9 @@ function makeResizable(win) {
     h.addEventListener('mousedown', e => {
       if (win.classList.contains('maximized')) return;
       bringFront(win);
-      const rect = win.getBoundingClientRect();
+      const rect = detachWindow(win, true);
       const sx = e.clientX, sy = e.clientY;
       const sw = rect.width, sh = rect.height, sl = rect.left, st = rect.top;
-      win.style.position = 'fixed';
-      win.style.left = sl + 'px'; win.style.top = st + 'px';
-      win.style.width = sw + 'px'; win.style.height = sh + 'px'; win.style.margin = '0';
       const move = ev => {
         const dx = ev.clientX - sx, dy = ev.clientY - sy;
         let nw = sw, nh = sh, nl = sl, nt = st;
@@ -424,8 +502,8 @@ function makeResizable(win) {
 }
 
 function tbBtn(id) { return document.querySelector(`.taskbar-btn[data-win="${id}"]`); }
-function minimizeWin(id) { const w = document.getElementById(id); w.classList.add('minimized'); w.classList.remove('maximized'); tbBtn(id)?.classList.remove('active'); }
-function closeWin(id) { const w = document.getElementById(id); w.classList.add('closed'); w.classList.remove('maximized'); tbBtn(id)?.classList.remove('active'); }
+function minimizeWin(id) { const w = document.getElementById(id); w.classList.add('minimized'); w.classList.remove('maximized'); dropPlaceholder(w); tbBtn(id)?.classList.remove('active'); }
+function closeWin(id) { const w = document.getElementById(id); w.classList.add('closed'); w.classList.remove('maximized'); dropPlaceholder(w); tbBtn(id)?.classList.remove('active'); }
 function restoreWin(id) { const w = document.getElementById(id); w.classList.remove('minimized', 'closed'); tbBtn(id)?.classList.add('active'); }
 function toggleMaximize(id, btn) {
   const w = document.getElementById(id);
@@ -490,7 +568,7 @@ const menuConfig = {
     { label: 'Copy', action: () => {} },
     { label: 'Select All', action: () => {} },
     { sep: true },
-    { label: 'Toggle Theme', action: () => toggleTheme() }
+    { label: 'Themes...', action: () => showThemeMenu() }
   ],
   format: [
     { label: 'Word Wrap', action: () => document.body.classList.toggle('wrap') },
@@ -501,7 +579,7 @@ const menuConfig = {
     { label: 'Zoom Out', action: () => { zoom.f = Math.max(70, zoom.f - 10); setZoom(); } },
     { label: 'Reset Zoom', action: () => { zoom.f = 100; setZoom(); } },
     { sep: true },
-    { label: 'Toggle Theme', action: () => toggleTheme() }
+    { label: 'Themes...', action: () => showThemeMenu() }
   ],
   help: [
     { label: 'About nxttu.', action: () => location.href = 'about.html' },
@@ -558,7 +636,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   const themeBtn = document.getElementById('theme-btn');
-  if (themeBtn) themeBtn.addEventListener('click', toggleTheme);
+  if (themeBtn) themeBtn.addEventListener('click', showThemeMenu);
 
   initWindows();
   initMenus();
