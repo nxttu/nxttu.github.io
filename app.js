@@ -6,7 +6,7 @@
 
 const translations = {
   en: {
-    "nav-about": "about", "nav-music": "music", "nav-stats": "stats", "nav-links": "links", "nav-theme": "climax",
+    "nav-about": "about", "nav-music": "music", "nav-news": "news", "nav-stats": "stats", "nav-links": "links", "nav-theme": "climax",
     "hero-tag": "// experimental electronic artist · est. 2021 · ukraine",
     "hero-sub": "next to you.",
     "hero-desc": "Combining ambient textures, breakbeat rhythms and digital noise into emotional soundscapes — focused on atmosphere and raw feeling, not traditional fucked up structure.",
@@ -26,6 +26,7 @@ const translations = {
     "label-stats": "stats by year",
     "stat-2021": "plays · 24 likes", "stat-2022": "plays · 24 likes", "stat-2023": "plays · 68 likes · 13 com.", "stat-2024": "plays · 15 likes", "stat-2025": "plays · 92 likes · 15 rep.",
     "label-links": "find me",
+    "label-news": "news", "label-news-sub": "what's new", "news-open": "open",
     "link-m": "Music", "link-ms": "Music / Store", "link-v": "Video", "link-sv": "Short Video", "link-vi": "Visual", "link-c": "Community", "link-g": "Gaming",
     "footer-left": "nxttu. · est. 2021 · ukraine", "footer-right-1": "all", "footer-right-2": "rights not fucking reserved", "footer-right-3": "open for deals",
     tl: [
@@ -37,7 +38,7 @@ const translations = {
     ]
   },
   ua: {
-    "nav-about": "про мене", "nav-music": "музика", "nav-stats": "статистика", "nav-links": "посилання", "nav-theme": "climax",
+    "nav-about": "про мене", "nav-music": "музика", "nav-news": "новини", "nav-stats": "статистика", "nav-links": "посилання", "nav-theme": "climax",
     "hero-tag": "// експериментальний електронний артист · з 2021 · україна",
     "hero-sub": "поруч із тобою.",
     "hero-desc": "Поєднання ембієнтних текстур, брейкбіт-ритмів та цифрового шуму в емоційні звукові ландшафти — фокус на атмосфері та чистому почутті, а не на традиційній структурі.",
@@ -57,6 +58,7 @@ const translations = {
     "label-stats": "статистика",
     "stat-2021": "прослуховувань · 24 лайків", "stat-2022": "прослуховувань · 24 лайків", "stat-2023": "прослуховувань · 68 лайків · 13 ком.", "stat-2024": "прослуховувань · 15 лайків", "stat-2025": "прослуховувань · 92 лайків · 15 реп.",
     "label-links": "знайди мене",
+    "label-news": "новини", "label-news-sub": "що нового", "news-open": "відкрити",
     "link-m": "Музика", "link-ms": "Музика / Магазин", "link-v": "Відео", "link-sv": "Короткі Відео", "link-vi": "Візуал", "link-c": "Спільнота", "link-g": "Ігри",
     "footer-left": "nxttu. · з 2021 · україна", "footer-right-1": "усі", "footer-right-2": "права нахрен не захищені", "footer-right-3": "відкритий до пропозицій",
     tl: [
@@ -68,7 +70,7 @@ const translations = {
     ]
   },
   ru: {
-    "nav-about": "обо мне", "nav-music": "музыка", "nav-stats": "статистика", "nav-links": "ссылки", "nav-theme": "climax",
+    "nav-about": "обо мне", "nav-music": "музыка", "nav-news": "новости", "nav-stats": "статистика", "nav-links": "ссылки", "nav-theme": "climax",
     "hero-tag": "// экспериментальный электронный артист · с 2021 · украина",
     "hero-sub": "рядом с тобой.",
     "hero-desc": "Смешение эмбиентных текстур, брейкбит-ритмов и цифрового шума в эмоциональные звуковые ландшафты — фокус на атмосфере и чистом чувстве, а не на традиционной структуре.",
@@ -88,6 +90,7 @@ const translations = {
     "label-stats": "статистика",
     "stat-2021": "прослушиваний · 24 лайков", "stat-2022": "прослушиваний · 24 лайков", "stat-2023": "прослушиваний · 68 лайков · 13 ком.", "stat-2024": "прослушиваний · 15 лайков", "stat-2025": "прослушиваний · 92 лайков · 15 реп.",
     "label-links": "найти меня",
+    "label-news": "новости", "label-news-sub": "что нового", "news-open": "открыть",
     "link-m": "Музыка", "link-ms": "Music / Store", "link-v": "Видео", "link-sv": "Короткие Видео", "link-vi": "Визуал", "link-c": "Сообщество", "link-g": "Игры",
     "footer-left": "nxttu. · с 2021 · украина", "footer-right-1": "все", "footer-right-2": "права нахрен не защищены", "footer-right-3": "открыт для предложений",
     tl: [
@@ -99,7 +102,7 @@ const translations = {
     ]
   },
   pl: {
-    "nav-about": "o mnie", "nav-music": "muzyka", "nav-stats": "statystyki", "nav-links": "linki", "nav-theme": "climax",
+    "nav-about": "o mnie", "nav-music": "muzyka", "nav-news": "aktualności", "nav-stats": "statystyki", "nav-links": "linki", "nav-theme": "climax",
     "hero-tag": "// eksperymentalny artysta elektroniczny · od 2021 · ukraina",
     "hero-sub": "obok ciebie.",
     "hero-desc": "Łączenie tekstur ambientowych, rytmów breakbeatowych i cyfrowego szumu w emocjonalne pejzaże dźwiękowe — skupienie na atmosferze, a no nie na tradycyjnej strukturze.",
@@ -119,6 +122,7 @@ const translations = {
     "label-stats": "statystyki",
     "stat-2021": "odtworzeń · 24 polubienia", "stat-2022": "odtworzeń · 24 polubienia", "stat-2023": "odtworzeń · 68 polubień · 13 kom.", "stat-2024": "odtworzeń · 15 polubień", "stat-2025": "odtworzeń · 92 polubienia · 15 rep.",
     "label-links": "znajdź mnie",
+    "label-news": "aktualności", "label-news-sub": "co nowego", "news-open": "otwórz",
     "link-m": "Muzyka", "link-ms": "Music / Store", "link-v": "Wideo", "link-sv": "Krótkie Wideo", "link-vi": "Wizualia", "link-c": "Społeczność", "link-g": "Gry",
     "footer-left": "nxttu. · od 2021 · ukraina", "footer-right-1": "wszystkie", "footer-right-2": "prawa nienachalnie zastrzeżone", "footer-right-3": "otwarty na oferty",
     tl: [
@@ -130,7 +134,7 @@ const translations = {
     ]
   },
   it: {
-    "nav-about": "info", "nav-music": "musica", "nav-stats": "statistiche", "nav-links": "link", "nav-theme": "climax",
+    "nav-about": "info", "nav-music": "musica", "nav-news": "novità", "nav-stats": "statistiche", "nav-links": "link", "nav-theme": "climax",
     "hero-tag": "// artista elettronico sperimentale · dal 2021 · ucraina",
     "hero-sub": "accanto a te.",
     "hero-desc": "Unire texture ambient, ritmi breakbeat e rumore digitale in paesaggi sonori emotivi — focalizzato sull'atmosfera e sul sentimento puro, non sulla struttura tradizionale.",
@@ -150,6 +154,7 @@ const translations = {
     "label-stats": "statistiche",
     "stat-2021": "ascolti · 24 like", "stat-2022": "ascolti · 24 like", "stat-2023": "ascolti · 68 like · 13 com.", "stat-2024": "ascolti · 15 like", "stat-2025": "ascolti · 92 like · 15 rep.",
     "label-links": "trovami",
+    "label-news": "novità", "label-news-sub": "cosa c'è di nuovo", "news-open": "apri",
     "link-m": "Musica", "link-ms": "Music / Store", "link-v": "Video", "link-sv": "Video Brevi", "link-vi": "Visual", "link-c": "Community", "link-g": "Gaming",
     "footer-left": "nxttu. · dal 2021 · ucraina", "footer-right-1": "tutti i", "footer-right-2": "diritti non fottutamente riservati", "footer-right-3": "aperto a proposte",
     tl: [
@@ -161,7 +166,7 @@ const translations = {
     ]
   },
   es: {
-    "nav-about": "info", "nav-music": "música", "nav-stats": "estadísticas", "nav-links": "enlaces", "nav-theme": "climax",
+    "nav-about": "info", "nav-music": "música", "nav-news": "noticias", "nav-stats": "estadísticas", "nav-links": "enlaces", "nav-theme": "climax",
     "hero-tag": "// artista electrónico experimental · desde 2021 · ucrania",
     "hero-sub": "al lado de ti.",
     "hero-desc": "Combinando texturas ambient, ritmos breakbeat y ruido digital en paisajes sonoros emocionales — enfocado en la atmósfera y el sentimiento puro, no en la estructura tradicional.",
@@ -181,6 +186,7 @@ const translations = {
     "label-stats": "estadísticas",
     "stat-2021": "reproducciones · 24 likes", "stat-2022": "reproducciones · 24 likes", "stat-2023": "reproducciones · 68 likes · 13 com.", "stat-2024": "reproducciones · 15 likes", "stat-2025": "reproducciones · 92 likes · 15 rep.",
     "label-links": "encuéntrame",
+    "label-news": "noticias", "label-news-sub": "qué hay de nuevo", "news-open": "abrir",
     "link-m": "Música", "link-ms": "Music / Store", "link-v": "Video", "link-sv": "Video Corto", "link-vi": "Visual", "link-c": "Comunidad", "link-g": "Juegos",
     "footer-left": "nxttu. · desde 2021 · ucraina", "footer-right-1": "todos los", "footer-right-2": "derechos no jodidamente reservados", "footer-right-3": "abierto a negocios",
     tl: [
@@ -213,6 +219,30 @@ function applyLanguage(lang) {
       timelineBox.appendChild(div);
     });
   }
+  renderNews(lang);
+}
+
+/* ---------- News feed (news.html) ----------
+   Posts live in news-data.js — adding news means editing that one file.
+   Every post carries its own text per language and falls back to `en`. */
+function renderNews(lang) {
+  const box = document.getElementById('news-list');
+  if (!box || typeof NEWS === 'undefined') return;
+  const dict = translations[lang] || translations.en;
+  box.innerHTML = '';
+  NEWS.forEach(item => {
+    const loc = item[lang] || item.en || {};
+    const el = document.createElement('article');
+    el.className = 'news-item';
+    const tag = loc.tag ? `<span class="news-tag">${loc.tag}</span>` : '';
+    const link = item.link
+      ? `<a class="news-link" href="${item.link}" target="_blank" rel="noopener">${dict['news-open']}</a>`
+      : '';
+    el.innerHTML = `<div class="news-meta"><span class="news-date">${item.date || ''}</span>${tag}</div>
+      <h3 class="news-title">${loc.title || ''}</h3>
+      <p class="news-text">${loc.text || ''}</p>${link}`;
+    box.appendChild(el);
+  });
 }
 
 /* ---------- Themes (climax) ---------- */
@@ -424,9 +454,18 @@ function renderClippy() {
 let topZ = 100;
 function bringFront(win) { win.style.zIndex = ++topZ; }
 
-/* Windows float above the page. The first time one is moved/resized it leaves
-   the document flow into a fixed layer, and a placeholder keeps its original
-   space — so dragging a window never reflows (compresses) the interface. */
+/* A moved window keeps its place in the page: it is placed absolutely in the
+   document (never fixed to the viewport), so scrolling the page scrolls the
+   window with the content instead of dragging it over the windows underneath.
+   The placeholder holds the window's original space, so the rest of the
+   interface never reflows (compresses) while a window is moved or resized. */
+function containingBlockOffset(win) {
+  const op = win.offsetParent;
+  if (!op || op === document.body) return { x: 0, y: 0 };
+  const r = op.getBoundingClientRect();
+  return { x: r.left + window.scrollX + op.clientLeft, y: r.top + window.scrollY + op.clientTop };
+}
+
 function detachWindow(win, lockHeight) {
   const rect = win.getBoundingClientRect();
   if (win.dataset.floating !== '1') {
@@ -439,13 +478,20 @@ function detachWindow(win, lockHeight) {
     win.parentNode.insertBefore(ph, win);
     win.dataset.floating = '1';
   }
-  win.style.position = 'fixed';
-  win.style.left = rect.left + 'px';
-  win.style.top = rect.top + 'px';
-  win.style.width = rect.width + 'px';
-  if (lockHeight) win.style.height = rect.height + 'px';
+  const cb = containingBlockOffset(win);
+  const pos = {
+    left: rect.left + window.scrollX - cb.x,
+    top: rect.top + window.scrollY - cb.y,
+    width: rect.width,
+    height: rect.height
+  };
+  win.style.position = 'absolute';
+  win.style.left = pos.left + 'px';
+  win.style.top = pos.top + 'px';
+  win.style.width = pos.width + 'px';
+  if (lockHeight) win.style.height = pos.height + 'px';
   win.style.margin = '0';
-  return rect;
+  return pos;
 }
 
 function dropPlaceholder(win) {
@@ -560,6 +606,7 @@ const menuConfig = {
   file: [
     { label: 'New', action: () => location.href = 'index.html' },
     { label: 'Open Music...', action: () => location.href = 'music.html' },
+    { label: 'Open News...', action: () => location.href = 'news.html' },
     { label: 'Open Links...', action: () => location.href = 'links.html' },
     { sep: true },
     { label: 'Exit', action: w => w.classList.add('closed') }

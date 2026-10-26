@@ -4,7 +4,8 @@ Static **multi-page** site (no build step, no backend, no package manager, no se
 
 | file | what it is |
 | --- | --- |
-| `index.html`, `about.html`, `music.html`, `stats.html`, `links.html` | the five pages |
+| `index.html`, `about.html`, `music.html`, `news.html`, `stats.html`, `links.html` | the six pages |
+| `news-data.js` | the news feed — **the only file to edit to post news** (see News below) |
 | `app.js` | i18n, themes, font dialog, window drag/resize, taskbar, menus, Clippy |
 | `style.css` | layout + component styles, driven by CSS custom properties |
 | `themes.css` | one `body[data-theme="…"]` palette block per theme (22 total) |
@@ -23,9 +24,21 @@ server** — after editing anything, call `reload_preview` so the iframe picks u
 
 ## Cache busting
 
-All five pages load styles/scripts with a `?v=N` query. When you change `style.css`,
-`themes.css`, `app.js`, `stars.js` or `cursor.js`, bump `N` in every page
-(`sed -i 's/?v=10/?v=11/g' *.html`) or the iframe may keep serving the old asset.
+All six pages load styles/scripts with a `?v=N` query. When you change `style.css`,
+`themes.css`, `app.js`, `news-data.js`, `stars.js` or `cursor.js`, bump `N` in every page
+(`sed -i 's/?v=11/?v=12/g' *.html`) or the iframe may keep serving the old asset.
+
+## News (`news.html` + `news-data.js`)
+
+Posts live in the `NEWS` array in `news-data.js`; `app.js`'s `renderNews()` paints them into
+`#news-list` on every `applyLanguage()` call.
+* Each entry: `date` (free text, shown as-is), optional `link`, and a block per language
+  (`en` required, `ua`/`ru`/`pl`/`it`/`es` optional with fallback to `en`), each
+  `{ tag?, title, text }`. Add new entries at the TOP of the array.
+* Localizable page/nav labels are ordinary i18n keys: `nav-news`, `label-news`,
+  `label-news-sub`, `news-open` — add them to **all six** language dicts in `app.js`.
+* `renderNews` bails out when `#news-list` or the `NEWS` global is missing, so `app.js`
+  stays safe on the other pages.
 
 ## Themes ("climax")
 
@@ -43,9 +56,15 @@ All five pages load styles/scripts with a `?v=N` query. When you change `style.c
 * `main` must keep `width: 100%`. `body` is a column flex container and `main` has
   `margin: 0 auto`, so it is **not** stretched: with `width: auto` its width shrinks to fit
   its content, and a window leaving the flow reflows (compresses) the whole page.
-* Dragging/resizing switches a window to `position: fixed` via `detachWindow()`, which
-  inserts a `.win-placeholder` (copying the window's height + vertical margins) so the
-  page keeps the space. Without the placeholder the footer and other windows jump.
+* Dragging/resizing switches a window to `position: absolute` **in document
+  coordinates** via `detachWindow()` (offset against `main`'s padding box, the window's
+  containing block), and inserts a `.win-placeholder` (copying the window's height +
+  vertical margins) so the page keeps the space. Without the placeholder the footer and
+  other windows jump.
+* Never go back to `position: fixed` for a moved window: a fixed window stays glued to
+  the viewport, so scrolling the page slides it over the other windows. Absolute
+  document coordinates keep a moved window where the user put it — it scrolls with the
+  content. `.win.maximized` is the one intentional exception (`fixed !important`).
 
 ## Verifying
 
