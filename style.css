@@ -17,6 +17,8 @@
   /* --- Webcore (default) --- */
   --app-font: 'W95FA', 'MS Sans Serif', Tahoma, Verdana, sans-serif;
   --brand-font: 'Unbounded', sans-serif;
+  /* pixel font for the taskbar tray (Cyrillic-capable, loaded from app.js) */
+  --pixel-font: 'Pixelify Sans', 'W95FA', Tahoma, sans-serif;
   --page-text: #143258;
   --page-text-soft: #3a5a85;
   --muted: #5a7a9a;
@@ -527,15 +529,8 @@ body.theme-dark .news-text { color: var(--muted); }
 .news-link:hover { color: var(--link-hover); text-decoration: underline; }
 body.theme-dark .news-link { color: var(--page-text); }
 
-/* FOOTER */
-footer {
-  padding: 1.5rem 1.5rem; border-top: 1px solid var(--win-shadow);
-  display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;
-  max-width: 1200px; margin: 0 auto; position: relative; z-index: 2;
-  color: var(--muted); flex-shrink: 0;
-}
-body.theme-dark footer { border-top-color: var(--dim); }
-footer p { font-size: 0.64rem; letter-spacing: 0.05em; }
+/* The old page footer is gone: its plaque now lives in the taskbar system
+   tray (built in app.js), so it shows on every page and carries the clock. */
 .meme-target { cursor: pointer; color: var(--accent); padding: 0.1rem 0.3rem; }
 .meme-target:hover { background: var(--accent); color: var(--win-body); }
 body.theme-dark .meme-target { color: var(--page-text); }
@@ -612,6 +607,87 @@ body.theme-dark .meme-target:hover { background: var(--page-text); color: var(--
 body.theme-dark .taskbar { background: var(--dark-bar, rgba(10,10,10,0.96)); border-top: 1px solid var(--dim); box-shadow: none; }
 body.theme-dark .taskbar-btn { background: var(--dark-panel-2, #161616); color: var(--muted); border-color: var(--dark-control-lt, #333) #000 #000 var(--dark-control-lt, #333); box-shadow: none; }
 body.theme-dark .taskbar-btn.active { background: var(--page-text); color: var(--win-body); border-color: var(--page-text); }
+
+/* ===================== SYSTEM TRAY — pixel plaque + Kyiv clock =====================
+   The nxttu. plaque used to sit in the page footer; it now lives here, so it
+   shows on every page. View → Taskbar Info hides it (localStorage nxttu-tray). */
+.taskbar-tray { margin-left: auto; display: flex; align-items: center; gap: 0.35rem; height: 100%; min-width: 0; }
+.taskbar-tray.hidden { display: none; }
+
+.tray-info {
+  display: flex; align-items: center; gap: 0.45rem; min-width: 0; height: 1.9rem;
+  padding: 0 0.55rem;
+  font-family: var(--pixel-font); font-size: 0.82rem; line-height: 1; letter-spacing: 0.02em;
+  color: #bfe9f5; text-shadow: 1px 1px 0 rgba(0, 8, 20, 0.75);
+  background-color: rgba(6, 22, 42, 0.6);
+  background-image: repeating-linear-gradient(0deg, rgba(255,255,255,0.07) 0 1px, transparent 1px 3px);
+  border: 2px solid;
+  border-color: rgba(0,0,0,0.6) rgba(190,230,255,0.32) rgba(190,230,255,0.32) rgba(0,0,0,0.6);
+  -webkit-font-smoothing: none; font-smooth: never;
+  overflow: hidden; white-space: nowrap;
+}
+.tray-plaque { overflow: hidden; text-overflow: ellipsis; }
+.tray-plaque--deals { color: rgba(191,233,245,0.78); }
+.tray-dot { color: rgba(191,233,245,0.45); }
+.taskbar-tray .meme-target { color: #ffe9a3; padding: 0 0.1rem; background: none; }
+.taskbar-tray .meme-target:hover { background: #ffe9a3; color: #06202f; }
+
+.tray-music {
+  display: flex; align-items: center; justify-content: center;
+  width: 1.9rem; height: 1.9rem; padding: 0; cursor: pointer; flex-shrink: 0;
+  color: #c8ffdf; background: rgba(6, 22, 42, 0.6);
+  border: 2px solid;
+  border-color: rgba(190,230,255,0.32) rgba(0,0,0,0.6) rgba(0,0,0,0.6) rgba(190,230,255,0.32);
+  box-shadow: 0 0 8px rgba(126,247,176,0.3);
+}
+.tray-music:hover { color: #fff; background: rgba(24, 62, 96, 0.75); }
+.tray-music svg { fill: currentColor; display: block; }
+.tray-music .wave, .tray-music .wave2 { fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; }
+.tray-music.muted { color: rgba(191,233,245,0.4); box-shadow: none; }
+.tray-music.muted .wave, .tray-music.muted .wave2 { display: none; }
+
+.tray-clock {
+  display: flex; align-items: center; gap: 0.4rem; height: 1.9rem; padding: 0 0.5rem; flex-shrink: 0;
+  font-family: var(--pixel-font); font-size: 0.86rem; line-height: 1; letter-spacing: 0.06em;
+  color: #cdf3ff; background: rgba(2, 12, 24, 0.8);
+  border: 2px solid;
+  border-color: rgba(0,0,0,0.65) rgba(190,230,255,0.3) rgba(190,230,255,0.3) rgba(0,0,0,0.65);
+  text-shadow: 0 0 6px rgba(120,220,255,0.7);
+  -webkit-font-smoothing: none; font-smooth: never;
+}
+.tray-clock b { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.16em; color: rgba(205,243,255,0.6); }
+.tray-led { width: 0.4rem; height: 0.4rem; background: #7ef7b0; box-shadow: 0 0 6px #7ef7b0; animation: ledBlink 2s steps(1, end) infinite; }
+@keyframes ledBlink { 0%, 65% { opacity: 1; } 66%, 100% { opacity: 0.22; } }
+
+body.theme-dark .tray-info { background-color: rgba(0,0,0,0.55); border-color: rgba(0,0,0,0.7) rgba(255,255,255,0.24) rgba(255,255,255,0.24) rgba(0,0,0,0.7); }
+body.theme-dark .tray-clock { background: rgba(0,0,0,0.8); }
+
+/* the plaque drops its second half on narrow screens, the clock stays */
+@media (max-width: 720px) {
+  .tray-plaque--deals, .tray-dot { display: none; }
+}
+
+/* ===================== DRAG GHOSTS (old-solitaire smear) =====================
+   app.js stamps one of these behind a window for every hop of a drag. */
+.drag-ghost {
+  position: absolute; z-index: 1; pointer-events: none;
+  background: var(--win-face);
+  border: 1px solid var(--win-dark);
+  box-shadow: inset 1px 1px 0 var(--win-light);
+  opacity: 0.9; transition: opacity 0.3s linear;
+}
+.drag-ghost::before {
+  content: ''; display: block; height: 1.05rem;
+  background: var(--title-grad);
+  border-bottom: 1px solid var(--win-dark);
+}
+.drag-ghost.gone { opacity: 0; }
+
+/* ===================== BACKGROUND MUSIC (hidden player) ===================== */
+.bg-music {
+  position: fixed; right: 0; bottom: 0; width: 1px; height: 1px;
+  border: 0; opacity: 0.01; pointer-events: none; z-index: 1;
+}
 
 /* ===================== MENU DROPDOWNS ===================== */
 .win-menu span { cursor: pointer; padding: 1px 5px; position: relative; }

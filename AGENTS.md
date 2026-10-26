@@ -6,7 +6,7 @@ Static **multi-page** site (no build step, no backend, no package manager, no se
 | --- | --- |
 | `index.html`, `about.html`, `music.html`, `news.html`, `stats.html`, `links.html` | the six pages |
 | `news-data.js` | the news feed — **the only file to edit to post news** (see News below) |
-| `app.js` | i18n, themes, font dialog, window drag/resize, taskbar, menus, Clippy |
+| `app.js` | i18n, themes, font dialog, window drag/resize + drag ghosts, taskbar tray (plaque + Kyiv clock), background music, menus, Clippy |
 | `style.css` | layout + component styles, driven by CSS custom properties |
 | `themes.css` | one `body[data-theme="…"]` palette block per theme (22 total) |
 | `stars.js` | falling-star background canvas |
@@ -26,7 +26,7 @@ server** — after editing anything, call `reload_preview` so the iframe picks u
 
 All six pages load styles/scripts with a `?v=N` query. When you change `style.css`,
 `themes.css`, `app.js`, `news-data.js`, `stars.js` or `cursor.js`, bump `N` in every page
-(`sed -i 's/?v=11/?v=12/g' *.html`) or the iframe may keep serving the old asset.
+(`sed -i 's/?v=12/?v=13/g' *.html`) or the iframe may keep serving the old asset.
 
 ## News (`news.html` + `news-data.js`)
 
@@ -39,6 +39,38 @@ Posts live in the `NEWS` array in `news-data.js`; `app.js`'s `renderNews()` pain
   `label-news-sub`, `news-open` — add them to **all six** language dicts in `app.js`.
 * `renderNews` bails out when `#news-list` or the `NEWS` global is missing, so `app.js`
   stays safe on the other pages.
+
+## Taskbar tray (plaque + Kyiv clock)
+
+* There is **no page footer any more**. Its plaque (`footer-left` / `footer-right-*`
+  i18n keys) is rendered by `renderTray()` into `.taskbar-tray` in the taskbar, which
+  `initWindows()` builds on every page — that is what makes the line site-wide.
+* The tray holds, right to left: the music speaker, the plaque, and the clock
+  (`Intl.DateTimeFormat` pinned to `Europe/Kyiv`, ticked every second).
+* `renderTray()` rewrites the plaque markup, so the rick-roll `.meme-target` click is
+  bound by **delegation on the tray**, not on the element.
+* View → **Taskbar Info** toggles the whole tray (`localStorage['nxttu-tray']`,
+  `'off'` hides it). Styles: the `SYSTEM TRAY` block in `style.css`; it uses the pixel
+  face `--pixel-font` (Pixelify Sans, injected as a `<link>` from `app.js` because it
+  needs the Cyrillic subset for the ua/ru plaques).
+* `.tray-plaque--deals` and `.tray-dot` are hidden under 720px; the clock never is.
+
+## Background music (NCS)
+
+* "NCS - Best of Chill Mix" (`MUSIC_ID` in `app.js`) plays through a 1px hidden
+  `.bg-music` YouTube embed: muted autoplay always starts, the first click/keypress
+  unmutes it (`musicUnmute()` repeats the command because the player ignores commands
+  until it has booted). The tray speaker and View → **Background Music** mute/unmute
+  (`localStorage['nxttu-music']`). **Audio playback cannot be verified automatically** —
+  check the tray speaker and sound by hand.
+
+## Drag ghosts (old-solitaire smear)
+
+`makeDraggable()` stamps a `.drag-ghost` (titlebar + face, no content) behind the
+window for every 14px of travel, max 18, and fades them out after the mouse is
+released. Ghosts are inserted with `insertBefore(g, win)`, which is why
+`detachWindow()` keeps `win._ph` and `dropPlaceholder()` prefers it over
+`previousElementSibling` — otherwise a ghost would be mistaken for the placeholder.
 
 ## Themes ("climax")
 

@@ -220,6 +220,7 @@ function applyLanguage(lang) {
     });
   }
   renderNews(lang);
+  renderTray();
 }
 
 /* ---------- News feed (news.html) ----------
@@ -450,6 +451,150 @@ function renderClippy() {
   a.classList.add('show');
 }
 
+/* ---------- Taskbar system tray: nxttu. plaque + Kyiv clock ----------
+   The plaque used to sit in the page footer; it now lives in the taskbar, so
+   it is present on every page, next to a live Europe/Kyiv clock. View →
+   Taskbar Info hides it (`nxttu-tray` in localStorage remembers the choice). */
+const KYIV_TZ = 'Europe/Kyiv';
+let trayTimer = 0;
+
+/* pixel face for the tray; Pixelify Sans ships a Cyrillic subset, which the
+   ua/ru plaques need */
+if (!document.querySelector('link[data-pixel-font]')) {
+  const pf = document.createElement('link');
+  pf.rel = 'stylesheet';
+  pf.dataset.pixelFont = '1';
+  pf.href = 'https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&display=swap';
+  document.head.appendChild(pf);
+}
+
+function trayVisible() { return localStorage.getItem('nxttu-tray') !== 'off'; }
+
+function kyivTime() {
+  try {
+    return new Intl.DateTimeFormat('en-GB', {
+      timeZone: KYIV_TZ, hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
+    }).format(new Date());
+  } catch (e) { return '--:--:--'; }
+}
+
+function renderTray() {
+  const info = document.getElementById('tray-info');
+  if (!info) return;
+  const dict = translations[localStorage.getItem('nxttu-lang') || 'en'] || translations.en;
+  info.innerHTML =
+    `<span class="tray-plaque">${dict['footer-left']}</span>` +
+    `<span class="tray-dot">·</span>` +
+    `<span class="tray-plaque tray-plaque--deals">${dict['footer-right-1']} ` +
+    `<span class="meme-target" id="fuck-target">${dict['footer-right-2']}</span> · ${dict['footer-right-3']}</span>`;
+}
+
+function updateTrayClock() {
+  const t = document.getElementById('tray-time');
+  if (t) t.textContent = kyivTime();
+}
+
+function applyTrayVisibility() {
+  const tray = document.querySelector('.taskbar-tray');
+  if (!tray) return;
+  const on = trayVisible();
+  tray.classList.toggle('hidden', !on);
+  if (on) {
+    updateTrayClock();
+    if (!trayTimer) trayTimer = setInterval(updateTrayClock, 1000);
+  } else if (trayTimer) {
+    clearInterval(trayTimer); trayTimer = 0;
+  }
+}
+
+function toggleTray() {
+  localStorage.setItem('nxttu-tray', trayVisible() ? 'off' : 'on');
+  applyTrayVisibility();
+}
+
+function initTray() {
+  const taskbar = document.querySelector('.taskbar');
+  if (!taskbar) return;
+  if (taskbar.querySelector('.taskbar-tray')) { applyTrayVisibility(); return; }
+  const tray = document.createElement('div');
+  tray.className = 'taskbar-tray';
+  tray.innerHTML = `
+    <button class="tray-music" id="tray-music" type="button" title="background music" aria-label="background music">
+      <svg viewBox="0 0 16 16" width="11" height="11" aria-hidden="true">
+        <path d="M2.5 5.5h2l3-3v11l-3-3h-2z"/>
+        <path class="wave" d="M9.6 5.6a3.4 3.4 0 0 1 0 4.8"/>
+        <path class="wave2" d="M11.7 3.6a6.2 6.2 0 0 1 0 8.8"/>
+      </svg>
+    </button>
+    <div class="tray-info" id="tray-info"></div>
+    <div class="tray-clock" title="Kyiv time">
+      <span class="tray-led"></span><span id="tray-time">--:--:--</span><b>KYIV</b>
+    </div>`;
+  taskbar.appendChild(tray);
+  /* the rick-roll plaque lives in the tray now; delegation keeps it clickable
+     after renderTray() rewrites the markup on every language change */
+  tray.addEventListener('click', e => {
+    if (e.target.closest('#tray-music')) { toggleMusic(); return; }
+    if (e.target.closest('.meme-target')) window.open('https://www.youtube.com/watch?v=dQw4w9WgXcQ', '_blank');
+  });
+  renderTray();
+  applyTrayVisibility();
+}
+
+/* ---------- Background music: NCS chill ----------
+   "NCS - Best of Chill Mix" (NoCopyrightSounds, copyright-free) streams through
+   a 1px YouTube embed. Every browser allows muted autoplay, so the mix starts
+   silently and is unmuted on the visitor's first click/keypress; the tray
+   speaker mutes it again (`nxttu-music` in localStorage remembers the choice). */
+const MUSIC_ID = 'EVdNpo8Aneo';
+const MUSIC_VOLUME = 40;
+let musicFrame = null;
+let musicState = localStorage.getItem('nxttu-music') !== 'off';
+
+function musicEnabled() { return musicState; }
+
+function musicCmd(func, arg) {
+  if (!musicFrame || !musicFrame.contentWindow) return;
+  const args = arg === undefined ? [] : [arg];
+  musicFrame.contentWindow.postMessage(JSON.stringify({ event: 'command', func, args }), '*');
+}
+
+/* the player ignores commands until it has booted, so repeat the unmute */
+function musicUnmute() {
+  [0, 500, 1500, 3000].forEach(ms => setTimeout(() => {
+    if (!musicState) return;
+    musicCmd('unMute');
+    musicCmd('setVolume', MUSIC_VOLUME);
+  }, ms));
+}
+
+function musicStart() {
+  if (musicFrame) { musicUnmute(); return; }
+  musicFrame = document.createElement('iframe');
+  musicFrame.className = 'bg-music';
+  musicFrame.setAttribute('allow', 'autoplay; encrypted-media');
+  musicFrame.setAttribute('title', 'NCS - Best of Chill Mix');
+  musicFrame.src = `https://www.youtube-nocookie.com/embed/${MUSIC_ID}` +
+    `?autoplay=1&mute=1&loop=1&playlist=${MUSIC_ID}&controls=0&rel=0&playsinline=1&enablejsapi=1`;
+  document.body.appendChild(musicFrame);
+  const unmute = () => musicUnmute();
+  window.addEventListener('pointerdown', unmute, { once: true });
+  window.addEventListener('keydown', unmute, { once: true });
+}
+
+function applyMusic() {
+  const btn = document.getElementById('tray-music');
+  if (btn) btn.classList.toggle('muted', !musicState);
+  if (musicState) musicStart();
+  else musicCmd('mute');
+}
+
+function toggleMusic() {
+  musicState = !musicState;
+  localStorage.setItem('nxttu-music', musicState ? 'on' : 'off');
+  applyMusic();
+}
+
 /* ---------- Window controls + taskbar ---------- */
 let topZ = 100;
 function bringFront(win) { win.style.zIndex = ++topZ; }
@@ -476,6 +621,7 @@ function detachWindow(win, lockHeight) {
     ph.style.marginTop = cs.marginTop;
     ph.style.marginBottom = cs.marginBottom;
     win.parentNode.insertBefore(ph, win);
+    win._ph = ph;
     win.dataset.floating = '1';
   }
   const cb = containingBlockOffset(win);
@@ -495,6 +641,7 @@ function detachWindow(win, lockHeight) {
 }
 
 function dropPlaceholder(win) {
+  if (win._ph) { win._ph.remove(); win._ph = null; return; }
   const ph = win.previousElementSibling;
   if (ph && ph.classList.contains('win-placeholder')) ph.remove();
 }
@@ -507,11 +654,39 @@ function makeDraggable(win) {
     bringFront(win);
     const rect = detachWindow(win);
     const sx = e.clientX, sy = e.clientY;
+
+    /* Old-solitaire smear: every hop deep enough stamps a ghost of the window
+       (titlebar + face, no content) at the spot it is leaving, kept behind the
+       live window. The ghosts are dropped shortly after the mouse is released. */
+    const ghosts = [];
+    let lastX = rect.left, lastY = rect.top;
+    const stamp = () => {
+      const gx = parseFloat(win.style.left) || 0;
+      const gy = parseFloat(win.style.top) || 0;
+      if (Math.abs(gx - lastX) + Math.abs(gy - lastY) < 14) return;
+      lastX = gx; lastY = gy;
+      const g = document.createElement('div');
+      g.className = 'drag-ghost';
+      g.style.left = gx + 'px';
+      g.style.top = gy + 'px';
+      g.style.width = rect.width + 'px';
+      g.style.height = rect.height + 'px';
+      win.parentNode.insertBefore(g, win);
+      ghosts.push(g);
+      if (ghosts.length > 18) ghosts.shift().remove();
+    };
+
     const move = ev => {
       win.style.left = (rect.left + ev.clientX - sx) + 'px';
       win.style.top = (rect.top + ev.clientY - sy) + 'px';
+      stamp();
     };
-    const up = () => { document.removeEventListener('mousemove', move); document.removeEventListener('mouseup', up); };
+    const up = () => {
+      document.removeEventListener('mousemove', move);
+      document.removeEventListener('mouseup', up);
+      ghosts.forEach((g, i) => { g.style.transitionDelay = (i * 14) + 'ms'; g.classList.add('gone'); });
+      setTimeout(() => ghosts.forEach(g => g.remove()), 500);
+    };
     document.addEventListener('mousemove', move);
     document.addEventListener('mouseup', up);
     e.preventDefault();
@@ -626,6 +801,9 @@ const menuConfig = {
     { label: 'Zoom Out', action: () => { zoom.f = Math.max(70, zoom.f - 10); setZoom(); } },
     { label: 'Reset Zoom', action: () => { zoom.f = 100; setZoom(); } },
     { sep: true },
+    { label: () => (trayVisible() ? '✓ ' : '') + 'Taskbar Info', action: () => toggleTray() },
+    { label: () => (musicEnabled() ? '✓ ' : '') + 'Background Music', action: () => toggleMusic() },
+    { sep: true },
     { label: 'Themes...', action: () => showThemeMenu() }
   ],
   help: [
@@ -653,7 +831,7 @@ function initMenus() {
           if (it.sep) { const s = document.createElement('div'); s.className = 'menu-sep'; dd.appendChild(s); return; }
           const mi = document.createElement('div');
           mi.className = 'menu-item';
-          mi.textContent = it.label;
+          mi.textContent = typeof it.label === 'function' ? it.label() : it.label;
           mi.addEventListener('click', ev => { ev.stopPropagation(); it.action(menu.closest('.win')); closeAllDropdowns(); });
           dd.appendChild(mi);
         });
@@ -686,12 +864,9 @@ document.addEventListener('DOMContentLoaded', () => {
   if (themeBtn) themeBtn.addEventListener('click', showThemeMenu);
 
   initWindows();
+  initTray();
   initMenus();
-
-  const fuckTarget = document.getElementById('fuck-target');
-  if (fuckTarget) {
-    fuckTarget.addEventListener('click', () => window.open('https://www.youtube.com/watch?v=dQw4w9WgXcQ', '_blank'));
-  }
+  applyMusic();
 
   // modal (music page)
   const tbcTrigger = document.getElementById('tbc-trigger');
