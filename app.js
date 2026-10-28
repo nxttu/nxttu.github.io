@@ -277,6 +277,8 @@ function applyTheme(key) {
   document.body.dataset.theme = theme.key;
   document.body.classList.toggle('theme-dark', theme.dark);
   localStorage.setItem('nxttu-theme', theme.key);
+  // the background particles follow the theme (bg.js)
+  if (window.nxttuBg) window.nxttuBg.setTheme(theme.key);
 }
 
 function showThemeMenu() {
@@ -544,7 +546,7 @@ const PIXELATE_SVG = `<svg class="crt-defs" aria-hidden="true" width="0" height=
     <feComposite width="4" height="4"/>
     <feTile result="grid"/>
     <feComposite in="SourceGraphic" in2="grid" operator="in"/>
-    <feMorphology operator="dilate" radius="1.4"/>
+    <feMorphology operator="dilate" radius="0.8"/>
   </filter>
 </svg>`;
 

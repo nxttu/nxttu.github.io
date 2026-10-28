@@ -10,7 +10,7 @@ Static **multi-page** site (no build step, no backend, no package manager, no se
 | `sfx.js` | synthesised UI sounds (click / window blip / scroll tick) — no audio files |
 | `style.css` | layout + component styles, driven by CSS custom properties |
 | `themes.css` | one `body[data-theme="…"]` palette block per theme (22 total) |
-| `stars.js` | falling-star background canvas |
+| `bg.js` | themed background particles canvas (petals / ash / matrix / snow / leaves / sparks / stars) |
 | `cursor.js` | pointer trail canvas (disabled on touch devices) |
 | `serve.py` | `python:3.12-slim` static server with no-cache headers |
 
@@ -26,7 +26,7 @@ server** — after editing anything, call `reload_preview` so the iframe picks u
 ## Cache busting
 
 All six pages load styles/scripts with a `?v=N` query. When you change `style.css`,
-`themes.css`, `app.js`, `news-data.js`, `stars.js` or `cursor.js`, bump `N` in every page
+`themes.css`, `app.js`, `news-data.js`, `bg.js` or `cursor.js`, bump `N` in every page
 (`sed -i 's/?v=13/?v=14/g' *.html`) or the iframe may keep serving the old asset. `sfx.js` counts too.
 
 ## News (`news.html` + `news-data.js`)
@@ -75,9 +75,10 @@ Posts live in the `NEWS` array in `news-data.js`; `app.js`'s `renderNews()` pain
   `#crt-pixelate` filter (`feFlood` + `feTile` + `feMorphology` ≈ 4 px blocks) and the
   fixed `.crt-overlay` (scanlines, RGB aperture grille, vignette, rolling band).
 * `body.crt-on` is the switch (`localStorage['nxttu-crt']`, **on by default**). Only
-  `.crt-overlay` is display-gated; the filter rules are `body.crt-on .win`,
-  `header`, `.taskbar` and `.drag-ghost`, so window *contents* get pixelated too, not
-  just the tray font.
+  `.crt-overlay` is display-gated. The `#crt-pixelate` filter is applied to
+  `.drag-ghost` only — **never to text-bearing chrome or `.win`/`.win-body`**: the
+  filter plus dense scanlines made the header, taskbar and window text unreadable.
+  Keep scanline opacity low (`0.05`); raise it only if you also re-check legibility.
 * Do not put the filter on `main` or `body`: a filtered ancestor becomes the
   containing block for `position: fixed`, which would break `.win.maximized`,
   the taskbar and the starfield.
@@ -125,6 +126,17 @@ so a window pulled past the edge used to be cut off with its shadow left behind)
   document coordinates keep a moved window where the user put it — it scrolls with the
   content. `.win.maximized` is the one intentional exception (`fixed !important`).
 
+## Responsive window content
+
+* `.win` is a CSS query container (`container-type: inline-size`). Layout/typography
+  inside a window is written against the **window's** width, not the viewport:
+  the `RESPONSIVE WINDOWS` block at the end of `style.css` stacks `.about-grid`, drops
+  `.stats-row` to 3/2 columns, shrinks `.win-body` padding and scales headings with
+  `cqw`. That is what keeps text readable when the user drags a window narrow.
+* A resized window (`[data-floating="1"]`) becomes a flex column and its `.win-body`
+  scrolls, so content never spills outside the frame. Do not add `overflow: hidden` to
+  `.win` itself — it would clip the resize handles and the menu dropdowns.
+
 ## Verifying
 
 ```
@@ -132,9 +144,12 @@ curl -sf http://localhost:3000/ -o /dev/null -w '%{http_code}\n'   # 200
 curl -sf http://localhost:3000/themes.css -o /dev/null -w '%{http_code}\n'
 ```
 
-* Star field: `canvas.bg-stars`, fixed, `z-index: -1` (behind all content); stars fall
-  diagonally down-left at 45° and always move — the OS "reduce motion" preference only
-  halves their speed.
+* Background: `canvas.bg-fx`, fixed, `z-index: -1` (behind all content). The particle
+  mode follows the theme (`THEME_MODE` in `bg.js`): sakura/candy → petals, lava/blood →
+  ash + embers, terminal → matrix rain, ice/ocean → snow, forest → leaves,
+  neon/vaporwave/sunset/gold → sparks, anything else → falling stars. `applyTheme()`
+  calls `window.nxttuBg.setTheme(key)`, so switching theme swaps the particles live.
+  Everything always moves — the OS "reduce motion" preference only halves the speed.
 * Cursor trail: a second fixed canvas at `z-index: 999999`; it follows *behind* the pointer
   and fades to nothing ~350 ms after the pointer stops (it must never pile into a white blob).
 * Browser note: the preview browser paints only a few frames per second, so canvas effects

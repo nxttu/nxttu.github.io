@@ -89,8 +89,8 @@ body::before {
   z-index: 9999;
 }
 
-/* infinite falling-star background (canvas, sits behind all content) */
-.bg-stars {
+/* themed background particles (canvas, sits behind all content) */
+.bg-fx {
   position: fixed;
   inset: 0;
   z-index: -1;
@@ -225,6 +225,9 @@ main { position: relative; z-index: 2; padding: 5.5rem 1.5rem 2rem; width: 100%;
 /* ===================== WIN (Windows XP window) ===================== */
 .win {
   position: relative;
+  /* the window is a query container: its content reflows to the window's
+     own width (resized windows included), not to the viewport */
+  container-type: inline-size;
   background: var(--win-face);
   border: 2px solid;
   border-color: var(--win-light) var(--win-dark) var(--win-dark) var(--win-light);
@@ -276,6 +279,8 @@ body.theme-dark .win-btn { background: var(--dark-control, #1a1a1a); border-colo
   padding: 1.8rem;
   color: var(--page-text);
   transition: background 0.3s, color 0.3s;
+  min-width: 0;
+  overflow-wrap: break-word;
 }
 body.theme-dark .win-body { background: var(--win-body); }
 
@@ -561,6 +566,10 @@ body.theme-dark .meme-target:hover { background: var(--page-text); color: var(--
 .win.maximized .win-body { overflow: auto; max-height: calc(100vh - 11rem); }
 .win.maximized .resize-handle { display: none; }
 
+/* a resized window scrolls its content instead of spilling it past the frame */
+.win[data-floating="1"] { display: flex; flex-direction: column; }
+.win[data-floating="1"] .win-body { flex: 1 1 auto; min-height: 0; overflow: auto; }
+
 /* ===================== RESIZE HANDLES ===================== */
 .resize-handle { position: absolute; z-index: 5; }
 .rh-n  { top: -3px; left: 10px; right: 10px; height: 7px; cursor: ns-resize; }
@@ -675,13 +684,14 @@ body.theme-dark .tray-clock { background: rgba(0,0,0,0.8); }
 body.crt-on .crt-overlay { display: block; }
 .crt-overlay::before {                       /* scanlines + slow tube flicker */
   content: ''; position: absolute; inset: 0;
-  background: repeating-linear-gradient(to bottom, rgba(0,0,0,0.15) 0 1px, rgba(0,0,0,0) 1px 3px);
+  /* kept light on purpose: dense scanlines made window text unreadable */
+  background: repeating-linear-gradient(to bottom, rgba(0,0,0,0.05) 0 1px, rgba(0,0,0,0) 1px 3px);
   animation: crtFlicker 5s steps(60, end) infinite;
 }
 .crt-overlay::after {                        /* curved-tube vignette */
   content: ''; position: absolute; inset: 0;
-  box-shadow: inset 0 0 160px rgba(0,0,0,0.6), inset 0 0 45px rgba(0,0,0,0.35);
-  background: radial-gradient(ellipse at 50% 45%, rgba(255,255,255,0.08), transparent 58%);
+  box-shadow: inset 0 0 150px rgba(0,0,0,0.32), inset 0 0 45px rgba(0,0,0,0.15);
+  background: radial-gradient(ellipse at 50% 45%, rgba(255,255,255,0.06), transparent 58%);
 }
 .crt-mask {                                  /* aperture grille: RGB phosphor stripes */
   position: absolute; inset: 0; mix-blend-mode: screen;
@@ -699,10 +709,9 @@ body.crt-on .crt-overlay { display: block; }
 }
 @keyframes crtRoll { from { top: -22%; } to { top: 104%; } }
 
-/* page chrome, window contents and the drag trail all become fat pixels */
-body.crt-on .win,
-body.crt-on header,
-body.crt-on .taskbar,
+/* only the transient drag trail gets the fat-pixel look — anything carrying
+   text (header, taskbar, window chrome, window content) stays unfiltered so
+   the CRT overlay never makes it unreadable */
 body.crt-on .drag-ghost { filter: url(#crt-pixelate); }
 body.crt-on .win img,
 body.crt-on .desk-icon-ic,
@@ -815,6 +824,33 @@ body.theme-dark .font-dialog-item { color: var(--page-text); border-bottom-color
 }
 .font-dialog-actions button:hover { filter: brightness(1.1); }
 body.theme-dark .font-dialog-actions button { background: var(--dark-panel-2, #161616); color: var(--muted); border-color: var(--dark-control-lt, #333) #000 #000 var(--dark-control-lt, #333); box-shadow: none; }
+
+/* ===================== RESPONSIVE WINDOWS =====================
+   The window is a query container, so its content reacts to the WINDOW's own
+   width (including after the user resizes it) — text reflows and type scales
+   down instead of being clipped by the frame. */
+@container (max-width: 700px) {
+  .win-body { padding: 1.25rem; }
+  .about-grid { grid-template-columns: 1fr; gap: 1.5rem; }
+  .about-grid > * { min-width: 0; }
+  .about-title { font-size: clamp(1.3rem, 7cqw, 2.3rem); }
+  .hero-body { padding: 2rem 1.4rem; }
+  .hero-name { font-size: clamp(2.1rem, 11cqw, 5rem); }
+  .hero-bg-text { font-size: clamp(4rem, 26cqw, 12rem); }
+  .stats-row { grid-template-columns: repeat(3, 1fr); }
+  .icon-grid { grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); }
+  .albums-grid, .links-grid { grid-template-columns: 1fr; }
+  .tl-item { grid-template-columns: 3.5rem 1fr; gap: 0.8rem; }
+}
+@container (max-width: 460px) {
+  .win-body { padding: 1rem; }
+  .win-menu { gap: 0.5rem; font-size: 0.6rem; flex-wrap: wrap; row-gap: 2px; }
+  .stats-row { grid-template-columns: repeat(2, 1fr); }
+  .about-body { line-height: 1.9; }
+  .hero-stats { gap: 1.25rem; }
+  .tl-item { grid-template-columns: 1fr; gap: 0.25rem; }
+  .album-card, .link-item { padding: 1.1rem; }
+}
 
 @media (max-width: 900px) {
   .header-socials { display: none; }
