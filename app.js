@@ -519,13 +519,6 @@ function initTray() {
   const tray = document.createElement('div');
   tray.className = 'taskbar-tray';
   tray.innerHTML = `
-    <button class="tray-music" id="tray-music" type="button" title="background music" aria-label="background music">
-      <svg viewBox="0 0 16 16" width="11" height="11" aria-hidden="true">
-        <path d="M2.5 5.5h2l3-3v11l-3-3h-2z"/>
-        <path class="wave" d="M9.6 5.6a3.4 3.4 0 0 1 0 4.8"/>
-        <path class="wave2" d="M11.7 3.6a6.2 6.2 0 0 1 0 8.8"/>
-      </svg>
-    </button>
     <div class="tray-info" id="tray-info"></div>
     <div class="tray-clock" title="Kyiv time">
       <span class="tray-led"></span><span id="tray-time">--:--:--</span><b>KYIV</b>
@@ -534,65 +527,43 @@ function initTray() {
   /* the rick-roll plaque lives in the tray now; delegation keeps it clickable
      after renderTray() rewrites the markup on every language change */
   tray.addEventListener('click', e => {
-    if (e.target.closest('#tray-music')) { toggleMusic(); return; }
     if (e.target.closest('.meme-target')) window.open('https://www.youtube.com/watch?v=dQw4w9WgXcQ', '_blank');
   });
   renderTray();
   applyTrayVisibility();
 }
 
-/* ---------- Background music: NCS chill ----------
-   "NCS - Best of Chill Mix" (NoCopyrightSounds, copyright-free) streams through
-   a 1px YouTube embed. Every browser allows muted autoplay, so the mix starts
-   silently and is unmuted on the visitor's first click/keypress; the tray
-   speaker mutes it again (`nxttu-music` in localStorage remembers the choice). */
-const MUSIC_ID = 'EVdNpo8Aneo';
-const MUSIC_VOLUME = 40;
-let musicFrame = null;
-let musicState = localStorage.getItem('nxttu-music') !== 'off';
+/* ---------- CRT shader: full-screen old monitor ----------
+   View → CRT Shader (`nxttu-crt` in localStorage) switches on a fixed
+   scanline / RGB-mask overlay plus the pixelate filter that re-renders the page
+   chrome AND everything inside the windows as fat pixels — the pixel font in
+   the tray was only one part of that look. */
+const PIXELATE_SVG = `<svg class="crt-defs" aria-hidden="true" width="0" height="0">
+  <filter id="crt-pixelate" x="0" y="0" width="100%" height="100%">
+    <feFlood x="2" y="2" height="1" width="1"/>
+    <feComposite width="4" height="4"/>
+    <feTile result="grid"/>
+    <feComposite in="SourceGraphic" in2="grid" operator="in"/>
+    <feMorphology operator="dilate" radius="1.4"/>
+  </filter>
+</svg>`;
 
-function musicEnabled() { return musicState; }
+function crtEnabled() { return localStorage.getItem('nxttu-crt') !== 'off'; }
 
-function musicCmd(func, arg) {
-  if (!musicFrame || !musicFrame.contentWindow) return;
-  const args = arg === undefined ? [] : [arg];
-  musicFrame.contentWindow.postMessage(JSON.stringify({ event: 'command', func, args }), '*');
+function initCrt() {
+  if (!document.querySelector('.crt-defs')) document.body.insertAdjacentHTML('beforeend', PIXELATE_SVG);
+  if (!document.querySelector('.crt-overlay')) {
+    document.body.insertAdjacentHTML('beforeend',
+      '<div class="crt-overlay" aria-hidden="true"><span class="crt-mask"></span><span class="crt-glass"></span></div>');
+  }
+  applyCrt();
 }
 
-/* the player ignores commands until it has booted, so repeat the unmute */
-function musicUnmute() {
-  [0, 500, 1500, 3000].forEach(ms => setTimeout(() => {
-    if (!musicState) return;
-    musicCmd('unMute');
-    musicCmd('setVolume', MUSIC_VOLUME);
-  }, ms));
-}
+function applyCrt() { document.body.classList.toggle('crt-on', crtEnabled()); }
 
-function musicStart() {
-  if (musicFrame) { musicUnmute(); return; }
-  musicFrame = document.createElement('iframe');
-  musicFrame.className = 'bg-music';
-  musicFrame.setAttribute('allow', 'autoplay; encrypted-media');
-  musicFrame.setAttribute('title', 'NCS - Best of Chill Mix');
-  musicFrame.src = `https://www.youtube-nocookie.com/embed/${MUSIC_ID}` +
-    `?autoplay=1&mute=1&loop=1&playlist=${MUSIC_ID}&controls=0&rel=0&playsinline=1&enablejsapi=1`;
-  document.body.appendChild(musicFrame);
-  const unmute = () => musicUnmute();
-  window.addEventListener('pointerdown', unmute, { once: true });
-  window.addEventListener('keydown', unmute, { once: true });
-}
-
-function applyMusic() {
-  const btn = document.getElementById('tray-music');
-  if (btn) btn.classList.toggle('muted', !musicState);
-  if (musicState) musicStart();
-  else musicCmd('mute');
-}
-
-function toggleMusic() {
-  musicState = !musicState;
-  localStorage.setItem('nxttu-music', musicState ? 'on' : 'off');
-  applyMusic();
+function toggleCrt() {
+  localStorage.setItem('nxttu-crt', crtEnabled() ? 'off' : 'on');
+  applyCrt();
 }
 
 /* ---------- Window controls + taskbar ---------- */
@@ -646,12 +617,33 @@ function dropPlaceholder(win) {
   if (ph && ph.classList.contains('win-placeholder')) ph.remove();
 }
 
+/* The body clips its overflow, so a window dragged past the page edge was cut
+   off and its hard shadow stayed behind as a detached strip. Keeping the frame
+   inside the viewport keeps the whole window — and its shadow — together and
+   the titlebar reachable. */
+function clampIntoView(win) {
+  const r = win.getBoundingClientRect();
+  const vw = document.documentElement.clientWidth;
+  const vh = window.innerHeight - 44;             // leave the taskbar clear
+  let dx = 0, dy = 0;
+  if (r.left < 0) dx = -r.left;
+  else if (r.right > vw) dx = vw - r.right;
+  if (r.top < 0) dy = -r.top;
+  else if (r.height < vh && r.bottom > vh) dy = vh - r.bottom;
+  if (dx || dy) {
+    win.style.left = (parseFloat(win.style.left) + dx) + 'px';
+    win.style.top = (parseFloat(win.style.top) + dy) + 'px';
+  }
+}
+
 function makeDraggable(win) {
   const bar = win.querySelector('.win-titlebar');
   if (!bar) return;
   bar.addEventListener('mousedown', e => {
     if (e.target.closest('.win-btn') || e.target.closest('.win-menu') || win.classList.contains('maximized')) return;
     bringFront(win);
+    /* a drag interrupted outside the page used to leave its trail on screen */
+    document.querySelectorAll('.drag-ghost').forEach(g => g.remove());
     const rect = detachWindow(win);
     const sx = e.clientX, sy = e.clientY;
 
@@ -679,16 +671,22 @@ function makeDraggable(win) {
     const move = ev => {
       win.style.left = (rect.left + ev.clientX - sx) + 'px';
       win.style.top = (rect.top + ev.clientY - sy) + 'px';
+      clampIntoView(win);
       stamp();
     };
     const up = () => {
       document.removeEventListener('mousemove', move);
       document.removeEventListener('mouseup', up);
-      ghosts.forEach((g, i) => { g.style.transitionDelay = (i * 14) + 'ms'; g.classList.add('gone'); });
-      setTimeout(() => ghosts.forEach(g => g.remove()), 500);
+      window.removeEventListener('blur', up);
+      document.removeEventListener('mouseleave', up);
+      ghosts.forEach(g => g.remove());
     };
     document.addEventListener('mousemove', move);
     document.addEventListener('mouseup', up);
+    /* releasing the button outside the document (or leaving the tab) never
+       fires mouseup in here — without these the trail stayed behind for ever */
+    window.addEventListener('blur', up);
+    document.addEventListener('mouseleave', up);
     e.preventDefault();
   });
 }
@@ -802,7 +800,8 @@ const menuConfig = {
     { label: 'Reset Zoom', action: () => { zoom.f = 100; setZoom(); } },
     { sep: true },
     { label: () => (trayVisible() ? '✓ ' : '') + 'Taskbar Info', action: () => toggleTray() },
-    { label: () => (musicEnabled() ? '✓ ' : '') + 'Background Music', action: () => toggleMusic() },
+    { label: () => (crtEnabled() ? '✓ ' : '') + 'CRT Shader', action: () => toggleCrt() },
+    { label: () => (window.nxttuSfx && nxttuSfx.isOn() ? '✓ ' : '') + 'Sound FX', action: () => { if (window.nxttuSfx) nxttuSfx.toggle(); } },
     { sep: true },
     { label: 'Themes...', action: () => showThemeMenu() }
   ],
@@ -865,8 +864,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   initWindows();
   initTray();
+  initCrt();
   initMenus();
-  applyMusic();
 
   // modal (music page)
   const tbcTrigger = document.getElementById('tbc-trigger');

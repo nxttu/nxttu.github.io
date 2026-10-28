@@ -6,7 +6,8 @@ Static **multi-page** site (no build step, no backend, no package manager, no se
 | --- | --- |
 | `index.html`, `about.html`, `music.html`, `news.html`, `stats.html`, `links.html` | the six pages |
 | `news-data.js` | the news feed — **the only file to edit to post news** (see News below) |
-| `app.js` | i18n, themes, font dialog, window drag/resize + drag ghosts, taskbar tray (plaque + Kyiv clock), background music, menus, Clippy |
+| `app.js` | i18n, themes, font dialog, window drag/resize + drag ghosts, taskbar tray (plaque + Kyiv clock), CRT shader, menus, Clippy |
+| `sfx.js` | synthesised UI sounds (click / window blip / scroll tick) — no audio files |
 | `style.css` | layout + component styles, driven by CSS custom properties |
 | `themes.css` | one `body[data-theme="…"]` palette block per theme (22 total) |
 | `stars.js` | falling-star background canvas |
@@ -26,7 +27,7 @@ server** — after editing anything, call `reload_preview` so the iframe picks u
 
 All six pages load styles/scripts with a `?v=N` query. When you change `style.css`,
 `themes.css`, `app.js`, `news-data.js`, `stars.js` or `cursor.js`, bump `N` in every page
-(`sed -i 's/?v=12/?v=13/g' *.html`) or the iframe may keep serving the old asset.
+(`sed -i 's/?v=13/?v=14/g' *.html`) or the iframe may keep serving the old asset. `sfx.js` counts too.
 
 ## News (`news.html` + `news-data.js`)
 
@@ -45,8 +46,9 @@ Posts live in the `NEWS` array in `news-data.js`; `app.js`'s `renderNews()` pain
 * There is **no page footer any more**. Its plaque (`footer-left` / `footer-right-*`
   i18n keys) is rendered by `renderTray()` into `.taskbar-tray` in the taskbar, which
   `initWindows()` builds on every page — that is what makes the line site-wide.
-* The tray holds, right to left: the music speaker, the plaque, and the clock
-  (`Intl.DateTimeFormat` pinned to `Europe/Kyiv`, ticked every second).
+* The tray holds the plaque and the clock (`Intl.DateTimeFormat` pinned to
+  `Europe/Kyiv`, ticked every second). The background-music embed was removed —
+  the only audio on the site is `sfx.js`.
 * `renderTray()` rewrites the plaque markup, so the rick-roll `.meme-target` click is
   bound by **delegation on the tray**, not on the element.
 * View → **Taskbar Info** toggles the whole tray (`localStorage['nxttu-tray']`,
@@ -55,22 +57,47 @@ Posts live in the `NEWS` array in `news-data.js`; `app.js`'s `renderNews()` pain
   needs the Cyrillic subset for the ua/ru plaques).
 * `.tray-plaque--deals` and `.tray-dot` are hidden under 720px; the clock never is.
 
-## Background music (NCS)
+## UI sounds (`sfx.js`)
 
-* "NCS - Best of Chill Mix" (`MUSIC_ID` in `app.js`) plays through a 1px hidden
-  `.bg-music` YouTube embed: muted autoplay always starts, the first click/keypress
-  unmutes it (`musicUnmute()` repeats the command because the player ignores commands
-  until it has booted). The tray speaker and View → **Background Music** mute/unmute
-  (`localStorage['nxttu-music']`). **Audio playback cannot be verified automatically** —
-  check the tray speaker and sound by hand.
+* Everything is synthesised with WebAudio — no audio files, nothing to license or
+  download. A short square "click" on any link/button/menu item/window control, a
+  triangle blip when a window is closed, and a soft band-passed noise tick while
+  scrolling (throttled to ~55 ms).
+* `sfx.js` **must load before `app.js`** (its View item calls `window.nxttuSfx`).
+* View → **Sound FX** toggles it (`localStorage['nxttu-sfx']`).
+* The AudioContext is created lazily inside the first user gesture, as browsers
+  require. **Sound itself cannot be verified automatically** — the only automated
+  check is that `window.nxttuSfx.state().ctx === 'running'` after a real click.
+
+## CRT shader (View → CRT Shader)
+
+* `initCrt()` appends two things to `body`: the `.crt-defs` SVG holding the
+  `#crt-pixelate` filter (`feFlood` + `feTile` + `feMorphology` ≈ 4 px blocks) and the
+  fixed `.crt-overlay` (scanlines, RGB aperture grille, vignette, rolling band).
+* `body.crt-on` is the switch (`localStorage['nxttu-crt']`, **on by default**). Only
+  `.crt-overlay` is display-gated; the filter rules are `body.crt-on .win`,
+  `header`, `.taskbar` and `.drag-ghost`, so window *contents* get pixelated too, not
+  just the tray font.
+* Do not put the filter on `main` or `body`: a filtered ancestor becomes the
+  containing block for `position: fixed`, which would break `.win.maximized`,
+  the taskbar and the starfield.
 
 ## Drag ghosts (old-solitaire smear)
 
-`makeDraggable()` stamps a `.drag-ghost` (titlebar + face, no content) behind the
-window for every 14px of travel, max 18, and fades them out after the mouse is
-released. Ghosts are inserted with `insertBefore(g, win)`, which is why
+`makeDraggable()` stamps a `.drag-ghost` (titlebar + face + the window's hard shadow,
+no content) behind the window for every 14px of travel, max 18, and removes them on
+drop. Ghosts are inserted with `insertBefore(g, win)`, which is why
 `detachWindow()` keeps `win._ph` and `dropPlaceholder()` prefers it over
 `previousElementSibling` — otherwise a ghost would be mistaken for the placeholder.
+
+The trail must never survive the drag: `mouseup` is not fired inside the document when
+the button is released outside it or the tab loses focus, so the drag also ends on
+`window blur` and `document mouseleave`, and every new drag first deletes any stale
+`.drag-ghost`. A leftover ghost is what reads on screen as a window "cut off with a
+detached shadow".
+
+`clampIntoView()` keeps a dragged window inside the viewport (body clips its overflow,
+so a window pulled past the edge used to be cut off with its shadow left behind).
 
 ## Themes ("climax")
 

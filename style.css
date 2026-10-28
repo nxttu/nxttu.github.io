@@ -632,20 +632,6 @@ body.theme-dark .taskbar-btn.active { background: var(--page-text); color: var(-
 .taskbar-tray .meme-target { color: #ffe9a3; padding: 0 0.1rem; background: none; }
 .taskbar-tray .meme-target:hover { background: #ffe9a3; color: #06202f; }
 
-.tray-music {
-  display: flex; align-items: center; justify-content: center;
-  width: 1.9rem; height: 1.9rem; padding: 0; cursor: pointer; flex-shrink: 0;
-  color: #c8ffdf; background: rgba(6, 22, 42, 0.6);
-  border: 2px solid;
-  border-color: rgba(190,230,255,0.32) rgba(0,0,0,0.6) rgba(0,0,0,0.6) rgba(190,230,255,0.32);
-  box-shadow: 0 0 8px rgba(126,247,176,0.3);
-}
-.tray-music:hover { color: #fff; background: rgba(24, 62, 96, 0.75); }
-.tray-music svg { fill: currentColor; display: block; }
-.tray-music .wave, .tray-music .wave2 { fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; }
-.tray-music.muted { color: rgba(191,233,245,0.4); box-shadow: none; }
-.tray-music.muted .wave, .tray-music.muted .wave2 { display: none; }
-
 .tray-clock {
   display: flex; align-items: center; gap: 0.4rem; height: 1.9rem; padding: 0 0.5rem; flex-shrink: 0;
   font-family: var(--pixel-font); font-size: 0.86rem; line-height: 1; letter-spacing: 0.06em;
@@ -673,20 +659,57 @@ body.theme-dark .tray-clock { background: rgba(0,0,0,0.8); }
   position: absolute; z-index: 1; pointer-events: none;
   background: var(--win-face);
   border: 1px solid var(--win-dark);
-  box-shadow: inset 1px 1px 0 var(--win-light);
-  opacity: 0.9; transition: opacity 0.3s linear;
+  /* carries the window's own hard shadow, so the trail never looks detached */
+  box-shadow: inset 1px 1px 0 var(--win-light), 4px 4px 0 rgba(0,0,40,0.12);
+  opacity: 0.85;
 }
 .drag-ghost::before {
   content: ''; display: block; height: 1.05rem;
   background: var(--title-grad);
   border-bottom: 1px solid var(--win-dark);
 }
-.drag-ghost.gone { opacity: 0; }
 
-/* ===================== BACKGROUND MUSIC (hidden player) ===================== */
-.bg-music {
-  position: fixed; right: 0; bottom: 0; width: 1px; height: 1px;
-  border: 0; opacity: 0.01; pointer-events: none; z-index: 1;
+/* ===================== CRT SHADER (View → CRT Shader) ===================== */
+.crt-defs { position: absolute; width: 0; height: 0; overflow: hidden; }
+.crt-overlay { position: fixed; inset: 0; z-index: 99990; pointer-events: none; display: none; }
+body.crt-on .crt-overlay { display: block; }
+.crt-overlay::before {                       /* scanlines + slow tube flicker */
+  content: ''; position: absolute; inset: 0;
+  background: repeating-linear-gradient(to bottom, rgba(0,0,0,0.15) 0 1px, rgba(0,0,0,0) 1px 3px);
+  animation: crtFlicker 5s steps(60, end) infinite;
+}
+.crt-overlay::after {                        /* curved-tube vignette */
+  content: ''; position: absolute; inset: 0;
+  box-shadow: inset 0 0 160px rgba(0,0,0,0.6), inset 0 0 45px rgba(0,0,0,0.35);
+  background: radial-gradient(ellipse at 50% 45%, rgba(255,255,255,0.08), transparent 58%);
+}
+.crt-mask {                                  /* aperture grille: RGB phosphor stripes */
+  position: absolute; inset: 0; mix-blend-mode: screen;
+  background: repeating-linear-gradient(to right,
+    rgba(255,0,60,0.055) 0 1px, rgba(0,255,120,0.045) 1px 2px, rgba(40,90,255,0.055) 2px 3px);
+}
+.crt-glass {                                 /* rolling refresh band */
+  position: absolute; left: 0; right: 0; height: 20%;
+  background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.055), transparent);
+  animation: crtRoll 6.5s linear infinite;
+}
+@keyframes crtFlicker {
+  0%, 100% { opacity: 1; } 48% { opacity: 0.82; } 50% { opacity: 1; }
+  72% { opacity: 0.92; } 74% { opacity: 1; }
+}
+@keyframes crtRoll { from { top: -22%; } to { top: 104%; } }
+
+/* page chrome, window contents and the drag trail all become fat pixels */
+body.crt-on .win,
+body.crt-on header,
+body.crt-on .taskbar,
+body.crt-on .drag-ghost { filter: url(#crt-pixelate); }
+body.crt-on .win img,
+body.crt-on .desk-icon-ic,
+body.crt-on canvas { image-rendering: pixelated; }
+
+@media (prefers-reduced-motion: reduce) {
+  .crt-overlay::before, .crt-glass { animation: none; }
 }
 
 /* ===================== MENU DROPDOWNS ===================== */
