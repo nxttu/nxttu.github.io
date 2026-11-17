@@ -436,6 +436,60 @@ body.theme-dark .album-card.rainbow .album-title {
   background: linear-gradient(90deg, #ff7aa8, #ffd166, #7bed9f, #7cc4ff, #c996ff);
   -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent;
 }
+/* era III is the headline era: full-width card, big title, rainbow artwork */
+.album-card.rainbow {
+  grid-column: 1 / -1; overflow: hidden; text-align: center;
+  background: radial-gradient(circle at 50% 0%, rgba(255,255,255,0.7), transparent 65%), var(--win-body-soft);
+}
+body.theme-dark .album-card.rainbow {
+  background: radial-gradient(circle at 50% 0%, rgba(168,85,247,0.22), transparent 65%), var(--win-body);
+}
+.album-card.rainbow .album-dot { margin: 0 auto 1rem; }
+.album-card.rainbow .album-title { font-size: clamp(1.5rem, 7cqw, 2.6rem); line-height: 1.05; }
+.album-sub {
+  font-size: 0.58rem; letter-spacing: 0.24em; text-transform: uppercase;
+  color: var(--muted); margin: -0.2rem 0 1.4rem;
+}
+.rainbow-art {
+  position: relative; width: clamp(180px, 34cqw, 300px); aspect-ratio: 1 / 1;
+  margin: 0 auto 1.4rem; display: grid; place-items: center;
+}
+.rainbow-halo {
+  position: absolute; inset: -12%; border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,255,255,0.85), rgba(168,85,247,0.35) 42%, rgba(56,189,248,0.2) 60%, transparent 72%);
+  filter: blur(10px); animation: rainbow-pulse 5s ease-in-out infinite;
+}
+body.theme-dark .rainbow-halo {
+  background: radial-gradient(circle, rgba(255,255,255,0.35), rgba(168,85,247,0.4) 42%, rgba(56,189,248,0.22) 60%, transparent 72%);
+}
+.rainbow-ring {
+  position: absolute; inset: 0; border-radius: 50%;
+  background: conic-gradient(#ff3b3b, #ffb703, #4ade80, #38bdf8, #a855f7, #ff3b3b);
+  -webkit-mask-image: radial-gradient(circle closest-side, transparent calc(100% - 6px), #000 calc(100% - 4px));
+  mask-image: radial-gradient(circle closest-side, transparent calc(100% - 6px), #000 calc(100% - 4px));
+  animation: rainbow-spin 18s linear infinite;
+}
+.rainbow-ring.r2 { inset: 13%; animation-duration: 13s; animation-direction: reverse; }
+.rainbow-ring.r3 { inset: 26%; animation-duration: 9s; }
+.rainbow-core {
+  position: relative; width: 42%; aspect-ratio: 1 / 1; border-radius: 50%;
+  display: grid; place-items: center; background: var(--win-body-soft);
+  border: 1px solid var(--win-shadow);
+  box-shadow: 0 0 18px rgba(168,85,247,0.35), inset 0 0 12px rgba(56,189,248,0.18);
+}
+body.theme-dark .rainbow-core { background: var(--win-body); border-color: var(--dim); }
+.rainbow-logo {
+  display: inline-flex; align-items: center; gap: 0.25rem;
+  font-family: var(--brand-font); font-weight: 700; font-size: clamp(0.7rem, 2.2cqw, 0.95rem);
+  letter-spacing: -0.02em; color: var(--page-text);
+  text-shadow: 0 0 10px rgba(255,255,255,0.55), 0 0 20px rgba(168,85,247,0.45);
+}
+.rainbow-logo .verified-badge { width: 0.8em; height: 0.8em; }
+@keyframes rainbow-spin { to { transform: rotate(360deg); } }
+@keyframes rainbow-pulse { 0%, 100% { opacity: 0.75; transform: scale(0.97); } 50% { opacity: 1; transform: scale(1.03); } }
+@media (prefers-reduced-motion: reduce) {
+  .rainbow-ring, .rainbow-halo { animation-duration: 40s; }
+}
 .album-era { font-size: 0.58rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.4rem; }
 .album-title { font-family: var(--app-font); font-weight: 700; font-size: 1.05rem; color: var(--page-text); margin-bottom: 0.8rem; letter-spacing: -0.02em; }
 .album-desc { font-size: 0.72rem; line-height: 1.8; color: var(--page-text-soft); margin-bottom: 1.2rem; }
